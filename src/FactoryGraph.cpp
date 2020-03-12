@@ -1,6 +1,6 @@
-#include "DijkstraFileParser.hh"
-#include "DijkstraAlgorithm.hh"
-#include "DijkstraResPrinter.hh"
+#include "dijkstra/include/DijkstraFileParser.hh"
+#include "dijkstra/include/DijkstraAlgorithm.hh"
+#include "dijkstra/include/DijkstraResPrinter.hh"
 
 #include "FactoryGraph.hh"
 

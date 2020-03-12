@@ -33,6 +33,30 @@ namespace graph::dijkstra
   {
     printer.init(*this);
   }
+  
+  void DijkstraAlgorithm::graphDescribe() const noexcept
+  {
+    std::cout << "Start node : " << _desc->startNodeName << std::endl;
+    std::cout << "End node : " << _desc->endNodeName << std::endl;
+    std::cout << "Arc number : " << _desc->arcNb << std::endl;
+    for (const auto& pair : _desc->nodes)
+      {
+	std::cout << pair.first << " neighbors : ";
+
+	auto start = pair.second.cbegin();
+	auto end = pair.second.cend();
+
+	while (start != end)
+	  {
+	    std::cout << start->first << " (" << start->second << ")";
+	    if (std::next(start) != end)
+	      std::cout << ", ";
+	    ++start;
+	  }
+	std::cout << std::endl;
+      }
+    std::cout << std::endl;
+  }
 
   void DijkstraAlgorithm::execute()
   {
@@ -74,29 +98,5 @@ namespace graph::dijkstra
 	      }
 	  }    
       }
-  }
-
-  void DijkstraAlgorithm::graphDescribe() const noexcept
-  {
-    std::cout << "Start node : " << _desc->startNodeName << std::endl;
-    std::cout << "End node : " << _desc->endNodeName << std::endl;
-    std::cout << "Arc number : " << _desc->arcNb << std::endl;
-    for (const auto& pair : _desc->nodes)
-      {
-	std::cout << pair.first << " neighbors : ";
-
-	auto start = pair.second.cbegin();
-	auto end = pair.second.cend();
-
-	while (start != end)
-	  {
-	    std::cout << start->first << " (" << start->second << ")";
-	    if (std::next(start) != end)
-	      std::cout << ", ";
-	    ++start;
-	  }
-	std::cout << std::endl;
-      }
-    std::cout << std::endl;
   }
 }
