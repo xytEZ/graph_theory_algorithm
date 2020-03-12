@@ -2,9 +2,11 @@ A F
 8
 A B 1
 A C 1
-B C 3
+B A 1
 B F 10
+B C 3
 C A 1
+C B 3
 C D 2
 C E 4
 D C 2

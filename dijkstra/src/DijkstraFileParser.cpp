@@ -246,5 +246,33 @@ namespace graph::dijkstra
 	    << _desc.arcNb;
 	throw std::invalid_argument(oss.str());
       }
+    for (const auto& pair : _desc.nodes)
+      {
+	for (const auto& pair2 : pair.second)
+	  {
+	    auto it = _desc.nodes.find(pair2.first);
+
+	    if (it == _desc.nodes.cend())
+	      {
+		std::ostringstream oss;
+
+		oss << "Missing info arc with node " << pair2.first;
+		throw std::invalid_argument(oss.str());
+	      }
+
+	    auto it2 = it->second.find(pair.first);
+
+	    if (it2 == it->second.cend())
+	      {
+		std::ostringstream oss;
+
+		oss << "Missing info arc with node "
+		    << pair2.first
+		    << " and neighbor node "
+		    << pair.first;
+		throw std::invalid_argument(oss.str());
+	      }
+	  }
+      }
   }
 }
