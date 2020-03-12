@@ -259,13 +259,10 @@ namespace graph::dijkstra
 		oss << "Missing info arc with node " << pair2.first;
 		throw std::invalid_argument(oss.str());
 	      }
-
-	    auto it2 = it->second.find(pair.first);
-
-	    if (it2 == it->second.cend())
+	    if (it->second.find(pair.first) == it->second.cend())
 	      {
 		std::ostringstream oss;
-
+		
 		oss << "Missing info arc with node "
 		    << pair2.first
 		    << " and neighbor node "
