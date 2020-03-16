@@ -26,36 +26,6 @@ namespace graph::dijkstra
   void DijkstraAlgorithm::init(const DijkstraFileParser& parser)
   {
     _desc = &parser._desc;
-    graphDescribe();
-  }
-
-  void DijkstraAlgorithm::accept(AGraphResPrinter& printer) const noexcept
-  {
-    printer.init(*this);
-  }
-  
-  void DijkstraAlgorithm::graphDescribe() const noexcept
-  {
-    std::cout << "Start node : " << _desc->startNodeName << std::endl;
-    std::cout << "End node : " << _desc->endNodeName << std::endl;
-    std::cout << "Arc number : " << _desc->arcNb << std::endl;
-    for (const auto& pair : _desc->nodes)
-      {
-	std::cout << pair.first << " neighbors : ";
-
-	auto start = pair.second.cbegin();
-	auto end = pair.second.cend();
-
-	while (start != end)
-	  {
-	    std::cout << start->first << " (" << start->second << ")";
-	    if (std::next(start) != end)
-	      std::cout << ", ";
-	    ++start;
-	  }
-	std::cout << std::endl;
-      }
-    std::cout << std::endl;
   }
 
   void DijkstraAlgorithm::execute()
@@ -98,5 +68,65 @@ namespace graph::dijkstra
 	      }
 	  }    
       }
+  }
+  
+  std::ostream& DijkstraAlgorithm::graphDesc(std::ostream& os) const noexcept
+  {    
+    os << "Start node : " << _desc->startNodeName << std::endl;
+    os << "End node : " << _desc->endNodeName << std::endl;
+    os << "Arc number : " << _desc->arcNb << std::endl;
+    for (const auto& pair : _desc->nodes)
+      {
+	os << pair.first << " neighbors : ";
+
+	auto start = pair.second.cbegin();
+	auto end = pair.second.cend();
+
+	while (start != end)
+	  {
+	    os << start->first << " (" << start->second << ")";
+	    if (std::next(start) != end)
+	      os << ", ";
+	    ++start;
+	  }
+	os << std::endl;
+      }
+    os << std::endl;
+    return os;
+  }
+
+  std::ostream& DijkstraAlgorithm::graphRes(std::ostream& os) const noexcept
+  {
+    if (!_result.pathFound)
+      os << "Path not found" << std::endl;
+    else
+      {
+	os << "Best distance : "
+	   << _result.totalDistance
+	   << std::endl;
+	os << "Best path : ";
+
+	std::string prevNodeName;
+	std::queue<NodeName_t> cpyVisitedNodeQueue = _result.visitedNodeQueue;
+
+	while (!cpyVisitedNodeQueue.empty())
+	  {
+	    NodeName_t nodeName = std::move(cpyVisitedNodeQueue.front());
+
+	    cpyVisitedNodeQueue.pop();
+	    os << nodeName;
+	    if (prevNodeName.empty())
+	      os << " (0)";
+	    else
+	      os << " ("
+		 << _desc->nodes.at(prevNodeName).at(nodeName)
+		 << ")";
+	    prevNodeName = std::move(nodeName);
+	    if (!cpyVisitedNodeQueue.empty())
+	      os << " -> ";
+	  }
+	os << std::endl;
+      }
+    return os;
   }
 }

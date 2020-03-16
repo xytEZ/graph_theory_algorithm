@@ -2,30 +2,23 @@
 # define ABSTRACT_GRAPH_HH_
 
 # include <string>
+# include <ostream>
 
 namespace graph
 {
   namespace dijkstra
   {
-    class DijkstraAlgorithm;
     class DijkstraFileParser;
   }
-    
-  class AGraphResPrinter
-  {
-  public :
-    virtual ~AGraphResPrinter() = default;
-    virtual void printAlgoResult() const noexcept= 0;
-    virtual void init(const dijkstra::DijkstraAlgorithm&);
-  };
   
   class AGraphAlgorithm
   {
   public :
     virtual ~AGraphAlgorithm() = default;
+    virtual void init(const dijkstra::DijkstraFileParser&); 
     virtual void execute() = 0;
-    virtual void accept(AGraphResPrinter&) const noexcept = 0;
-    virtual void init(const dijkstra::DijkstraFileParser&);
+    virtual std::ostream& graphDesc(std::ostream&) const noexcept = 0;
+    virtual std::ostream& graphRes(std::ostream&) const noexcept = 0;
   };
   
   class AGraphFileParser

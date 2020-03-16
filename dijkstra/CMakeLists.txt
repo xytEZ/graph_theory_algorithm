@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 set(DIJKSTRA_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DijkstraFileParser.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/DijkstraAlgorithm.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/DijkstraResPrinter.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/DijkstraAlgorithm.cpp)
 
 add_library(dijkstra_lib ${DIJKSTRA_SRCS})
 

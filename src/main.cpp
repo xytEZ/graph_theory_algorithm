@@ -14,7 +14,7 @@ int main(int ac, char **av)
 {
   try
     {
-      line_arguments::ProgramOptionsHandler poHandler(ac, av);
+      line_arguments::ProgramOptionsHandler poHandler(std::cout, ac, av);
 
       poHandler.parseArgs();
       if (poHandler.hasHelp())
@@ -31,13 +31,9 @@ int main(int ac, char **av)
 	factoGrph::GraphAlgorithm::getAlgorithm(algo);
 
       parser->accept(*algorithm);
+      algorithm->graphDesc(std::cout);
       algorithm->execute();
-      
-      std::unique_ptr<graph::AGraphResPrinter> printer =
-	factoGrph::GraphResPrinter::getPrinter(algo);
-
-      algorithm->accept(*printer);
-      printer->printAlgoResult();
+      algorithm->graphRes(std::cout);
     }
   catch (const std::exception& e)
     {

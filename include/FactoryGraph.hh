@@ -10,7 +10,6 @@ namespace graph
 {
   class AGraphFileParser;
   class AGraphAlgorithm;
-  class AGraphResPrinter;
   
   namespace factory
   {
@@ -26,13 +25,6 @@ namespace graph
     public :
       static std::unique_ptr<AGraphAlgorithm>
       getAlgorithm(GraphAlgo);
-    };
-
-    class GraphResPrinter
-    {
-    public :
-      static std::unique_ptr<AGraphResPrinter>
-      getPrinter(GraphAlgo);
     };
   }
 }

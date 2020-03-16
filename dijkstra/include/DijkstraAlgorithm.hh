@@ -3,7 +3,6 @@
 
 # include "AbstractGraph.hh"
 # include "DijkstraUtils.hh"
-# include "DijkstraResPrinter.hh"
 
 namespace graph::dijkstra
 {
@@ -16,8 +15,6 @@ namespace graph::dijkstra
 		      const NodeDistanceWithTrace&) const noexcept;
     };
     
-    friend void DijkstraResPrinter::init(const DijkstraAlgorithm&);
-    
     const GraphDesc *_desc;
     GraphResult _result;
     
@@ -29,11 +26,9 @@ namespace graph::dijkstra
     DijkstraAlgorithm& operator=(const DijkstraAlgorithm&) = delete;
     DijkstraAlgorithm& operator=(DijkstraAlgorithm&&) = delete;
     void init(const DijkstraFileParser&) override;
-    void accept(AGraphResPrinter&) const noexcept override;
     void execute() override;
-
-  private :
-    inline void graphDescribe() const noexcept;
+    std::ostream& graphDesc(std::ostream&) const noexcept override;
+    std::ostream& graphRes(std::ostream&) const noexcept override;
   };
 }
 

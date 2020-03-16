@@ -2,6 +2,7 @@
 # define PROGRAM_OPTIONS_HANDLER_HH_
 
 # include <string>
+# include <iostream>
 
 # include "GraphAlgo.hh"
 
@@ -9,6 +10,7 @@ namespace line_arguments
 {
   class ProgramOptionsHandler
   {
+    std::ostream& _os;
     int _ac;
     char **_av;
     bool _hasHelp;
@@ -17,7 +19,7 @@ namespace line_arguments
 
   public :
     ProgramOptionsHandler() = delete;
-    ProgramOptionsHandler(int, char **);
+    ProgramOptionsHandler(std::ostream&, int, char **);
     ProgramOptionsHandler(const ProgramOptionsHandler&) = delete;
     ProgramOptionsHandler(ProgramOptionsHandler&&) = delete;
     ProgramOptionsHandler& operator=(const ProgramOptionsHandler&) = delete;

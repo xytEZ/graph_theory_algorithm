@@ -9,7 +9,10 @@ namespace po = boost::program_options;
 
 namespace line_arguments
 {
-  ProgramOptionsHandler::ProgramOptionsHandler(int ac, char **av) :
+  ProgramOptionsHandler::ProgramOptionsHandler(std::ostream& os,
+					       int ac,
+					       char **av) :
+    _os(os),
     _ac(ac),
     _av(av),
     _hasHelp(false),
@@ -37,16 +40,16 @@ namespace line_arguments
     po::notify(vm);
     if (vm.count("help"))
       {
-	std::cout << desc << std::endl;	
-	std::cout << "Examples of usage:" << std::endl;
-	std::cout << _av[0]
-		  << " -a dijkstra"
-		  << " -f map.txt"
-		  << std::endl;
-	std::cout << _av[0]
-		  << " --algorithm dijkstra"
-		  << " --file map.txt"
-		  << std::endl;
+	_os << desc << std::endl;	
+	_os << "Examples of usage:" << std::endl;
+	_os << _av[0]
+	    << " -a dijkstra"
+	    << " -f map.txt"
+	    << std::endl;
+	_os << _av[0]
+	    << " --algorithm dijkstra"
+	    << " --file map.txt"
+	    << std::endl;
 	_hasHelp = true;
 	return;
       }
