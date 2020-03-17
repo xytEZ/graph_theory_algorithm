@@ -15,14 +15,7 @@ namespace graph::dijkstra
   using VerticesWithNeighboringVertices_t =
     std::unordered_map<VertexName_t, NeighboringVertices_t>;
 
-  struct VertexDistanceWithTrace
-  {
-    VertexName_t vertexName;
-    Distance_t cumulativeDist;
-    std::queue<VertexName_t> visitedVertexQueue;
-  };
-  
-  struct GraphDesc
+  struct Graph
   {
     VertexName_t startVertexName;
     VertexName_t endVertexName;
@@ -30,12 +23,20 @@ namespace graph::dijkstra
     VerticesWithNeighboringVertices_t vertices;
   };
   
-  struct GraphResult
+  struct Result
   {
     bool pathFound;
     Distance_t totalDistance;
     std::queue<VertexName_t> visitedVertexQueue;
   };
+  
+  struct VertexDistanceWithTrace
+  {
+    VertexName_t vertexName;
+    Distance_t cumulativeDist;
+    std::queue<VertexName_t> visitedVertexQueue;
+  };
+  
 }
 
 #endif

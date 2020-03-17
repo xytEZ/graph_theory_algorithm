@@ -19,13 +19,13 @@ namespace graph::dijkstra
   }
   
   DijkstraAlgorithm::DijkstraAlgorithm() :
-    _desc(nullptr),
+    _graph(nullptr),
     _result({ false, 0, std::queue<VertexName_t> { } })
   { }
   
   void DijkstraAlgorithm::init(const DijkstraFileParser& parser)
   {
-    _desc = &parser._desc;
+    _graph = &parser._graph;
   }
 
   void DijkstraAlgorithm::execute()
@@ -37,14 +37,14 @@ namespace graph::dijkstra
     std::unordered_set<VertexName_t> visitedVertexSet;
     PrQueue_t vdwtQueue;
 
-    visitedVertexSet.reserve(_desc->vertices.size());
+    visitedVertexSet.reserve(_graph->vertices.size());
     vdwtQueue
-      .push({ _desc->startVertexName, 0, std::queue<VertexName_t> { } }); 
+      .push({ _graph->startVertexName, 0, std::queue<VertexName_t> { } }); 
     while (!vdwtQueue.empty())
       {
 	VertexDistanceWithTrace vdwt = std::move(vdwtQueue.top());
 
-	if (vdwt.vertexName == _desc->endVertexName)
+	if (vdwt.vertexName == _graph->endVertexName)
 	  {
 	    _result.pathFound = true;
 	    _result.totalDistance = vdwt.cumulativeDist;
@@ -55,7 +55,7 @@ namespace graph::dijkstra
 	vdwtQueue.pop();
 	if (!visitedVertexSet.emplace(vdwt.vertexName).second)
 	  continue;
-	for (const auto& pair : _desc->vertices.at(vdwt.vertexName))
+	for (const auto& pair : _graph->vertices.at(vdwt.vertexName))
 	  {
 	    if (visitedVertexSet.find(pair.first) == visitedVertexSet.cend())
 	      {
@@ -73,10 +73,10 @@ namespace graph::dijkstra
   
   std::ostream& DijkstraAlgorithm::description(std::ostream& os) const noexcept
   {    
-    os << "Start vertex : " << _desc->startVertexName << std::endl;
-    os << "End vertex : " << _desc->endVertexName << std::endl;
-    os << "Edge number : " << _desc->edgeNb << std::endl;
-    for (const auto& pair : _desc->vertices)
+    os << "Start vertex : " << _graph->startVertexName << std::endl;
+    os << "End vertex : " << _graph->endVertexName << std::endl;
+    os << "Edge number : " << _graph->edgeNb << std::endl;
+    for (const auto& pair : _graph->vertices)
       {
 	os << pair.first << " neighbors : ";
 
@@ -121,7 +121,7 @@ namespace graph::dijkstra
 	      os << " (0)";
 	    else
 	      os << " ("
-		 << _desc->vertices.at(prevVertexName).at(vertexName)
+		 << _graph->vertices.at(prevVertexName).at(vertexName)
 		 << ")";
 	    prevVertexName = std::move(vertexName);
 	    if (!cpyVisitedVertexQueue.empty())

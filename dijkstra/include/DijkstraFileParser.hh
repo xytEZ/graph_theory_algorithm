@@ -14,7 +14,7 @@ namespace graph::dijkstra
   {
     friend void DijkstraAlgorithm::init(const DijkstraFileParser&);
 
-    GraphDesc _desc;
+    Graph _graph;
     
   public :
     DijkstraFileParser(const std::string&);

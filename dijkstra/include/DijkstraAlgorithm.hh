@@ -15,8 +15,8 @@ namespace graph::dijkstra
 		      const VertexDistanceWithTrace&) const noexcept;
     };
     
-    const GraphDesc *_desc;
-    GraphResult _result;
+    const Graph *_graph;
+    Result _result;
     
   public :
     DijkstraAlgorithm();

@@ -9,7 +9,7 @@ namespace graph::dijkstra
 {
   DijkstraFileParser::DijkstraFileParser(const std::string& fileName) :
     AGraphFileParser(fileName),
-    _desc({ "", "", 0, { } })
+    _graph({ "", "", 0, { } })
   { }
 
   void DijkstraFileParser::parse()
@@ -61,9 +61,9 @@ namespace graph::dijkstra
 	oss << "Too much arguments about start and end vertices line";
 	throw std::invalid_argument(oss.str());
       }
-    _desc.startVertexName = tokenVect.at(0);
-    _desc.endVertexName = tokenVect.at(1);
-    if (_desc.startVertexName == _desc.endVertexName)
+    _graph.startVertexName = tokenVect.at(0);
+    _graph.endVertexName = tokenVect.at(1);
+    if (_graph.startVertexName == _graph.endVertexName)
       {
 	std::ostringstream oss;
 
@@ -101,7 +101,7 @@ namespace graph::dijkstra
       {
 	const std::string& edgeNbStr = tokenVect.at(0);
 
-	_desc.edgeNb = boost::lexical_cast<EdgeNumber_t>(edgeNbStr);
+	_graph.edgeNb = boost::lexical_cast<EdgeNumber_t>(edgeNbStr);
 	if (edgeNbStr.at(0) == '-')
 	  {
 	    std::ostringstream oss;
@@ -117,7 +117,7 @@ namespace graph::dijkstra
 	oss << "Bad type. Edge number must be a integer";
 	throw std::invalid_argument(oss.str());
       }
-    if (_desc.edgeNb == 0)
+    if (_graph.edgeNb == 0)
       {
 	std::ostringstream oss;
 
@@ -181,7 +181,7 @@ namespace graph::dijkstra
 		oss << "Distance cannot be equal to 0";
 		throw std::invalid_argument(oss.str());
 	      }   
-	    if (!_desc
+	    if (!_graph
 		.vertices
 		.try_emplace(tokenVect.at(0), NeighboringVertices_t { })
 		.first->second.try_emplace(tokenVect.at(1), distance)
@@ -196,9 +196,9 @@ namespace graph::dijkstra
 		throw std::invalid_argument(oss.str());
 	      }
 
-	    auto it = _desc.vertices.find(tokenVect.at(1));
+	    auto it = _graph.vertices.find(tokenVect.at(1));
 	    
-	    if (it != _desc.vertices.cend())
+	    if (it != _graph.vertices.cend())
 	      {
 		auto it2 = it->second.find(tokenVect.at(0));
 		
@@ -230,29 +230,29 @@ namespace graph::dijkstra
 	    throw std::invalid_argument(oss.str());
 	  }
       }
-    if (edgeCount < _desc.edgeNb)
+    if (edgeCount < _graph.edgeNb)
       {
 	std::ostringstream oss;
 
 	oss << "Missing edges. Number of edges must be equal to "
-	    << _desc.edgeNb;
+	    << _graph.edgeNb;
 	throw std::invalid_argument(oss.str());
       }
-    else if (edgeCount > _desc.edgeNb)
+    else if (edgeCount > _graph.edgeNb)
       {
 	std::ostringstream oss;
 
 	oss << "Too much edges. Number of edges must be equal to "
-	    << _desc.edgeNb;
+	    << _graph.edgeNb;
 	throw std::invalid_argument(oss.str());
       }
-    for (const auto& pair : _desc.vertices)
+    for (const auto& pair : _graph.vertices)
       {
 	for (const auto& pair2 : pair.second)
 	  {
-	    auto it = _desc.vertices.find(pair2.first);
+	    auto it = _graph.vertices.find(pair2.first);
 
-	    if (it == _desc.vertices.cend())
+	    if (it == _graph.vertices.cend())
 	      {
 		std::ostringstream oss;
 
