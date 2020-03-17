@@ -27,8 +27,8 @@ namespace graph::dijkstra
     DijkstraAlgorithm& operator=(DijkstraAlgorithm&&) = delete;
     void init(const DijkstraFileParser&) override;
     void execute() override;
-    std::ostream& graphDesc(std::ostream&) const noexcept override;
-    std::ostream& graphRes(std::ostream&) const noexcept override;
+    std::ostream& description(std::ostream&) const noexcept override;
+    std::ostream& result(std::ostream&) const noexcept override;
   };
 }
 

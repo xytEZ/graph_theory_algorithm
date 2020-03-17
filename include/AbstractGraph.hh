@@ -17,8 +17,8 @@ namespace graph
     virtual ~AGraphAlgorithm() = default;
     virtual void init(const dijkstra::DijkstraFileParser&); 
     virtual void execute() = 0;
-    virtual std::ostream& graphDesc(std::ostream&) const noexcept = 0;
-    virtual std::ostream& graphRes(std::ostream&) const noexcept = 0;
+    virtual std::ostream& description(std::ostream&) const noexcept = 0;
+    virtual std::ostream& result(std::ostream&) const noexcept = 0;
   };
   
   class AGraphFileParser

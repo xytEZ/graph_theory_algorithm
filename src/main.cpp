@@ -31,9 +31,9 @@ int main(int ac, char **av)
 	factoGrph::GraphAlgorithm::getAlgorithm(algo);
 
       parser->accept(*algorithm);
-      algorithm->graphDesc(std::cout);
+      algorithm->description(std::cout);
       algorithm->execute();
-      algorithm->graphRes(std::cout);
+      algorithm->result(std::cout);
     }
   catch (const std::exception& e)
     {

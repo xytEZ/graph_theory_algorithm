@@ -71,7 +71,7 @@ namespace graph::dijkstra
       }
   }
   
-  std::ostream& DijkstraAlgorithm::graphDesc(std::ostream& os) const noexcept
+  std::ostream& DijkstraAlgorithm::description(std::ostream& os) const noexcept
   {    
     os << "Start vertex : " << _desc->startVertexName << std::endl;
     os << "End vertex : " << _desc->endVertexName << std::endl;
@@ -96,7 +96,7 @@ namespace graph::dijkstra
     return os;
   }
 
-  std::ostream& DijkstraAlgorithm::graphRes(std::ostream& os) const noexcept
+  std::ostream& DijkstraAlgorithm::result(std::ostream& os) const noexcept
   {
     if (!_result.pathFound)
       os << "Path not found" << std::endl;
