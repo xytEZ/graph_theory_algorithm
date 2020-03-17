@@ -25,9 +25,9 @@ namespace graph::dijkstra
 	    << "\" file";
 	throw std::runtime_error(oss.str());
       }
-    parseStartEndNodes(ifs);
-    parseArcNumber(ifs);
-    parseNodes(ifs);
+    parseStartEndVertices(ifs);
+    parseEdgeNumber(ifs);
+    parseVertices(ifs);
   }
 
   void DijkstraFileParser::accept(AGraphAlgorithm& graphAlgo)
@@ -36,7 +36,7 @@ namespace graph::dijkstra
     graphAlgo.init(*this);
   }
 
-  void DijkstraFileParser::parseStartEndNodes(std::ifstream& ifs)
+  void DijkstraFileParser::parseStartEndVertices(std::ifstream& ifs)
   {
     std::string line;
     
@@ -51,28 +51,28 @@ namespace graph::dijkstra
       {
 	std::ostringstream oss;
 
-	oss << "Missing arguments about start and end nodes line";
+	oss << "Missing arguments about start and end vertices line";
 	throw std::invalid_argument(oss.str());
       }
     else if (tokenVect.size() > 2)
       {
 	std::ostringstream oss;
 
-	oss << "Too much arguments about start and end nodes line";
+	oss << "Too much arguments about start and end vertices line";
 	throw std::invalid_argument(oss.str());
       }
-    _desc.startNodeName = tokenVect.at(0);
-    _desc.endNodeName = tokenVect.at(1);
-    if (_desc.startNodeName == _desc.endNodeName)
+    _desc.startVertexName = tokenVect.at(0);
+    _desc.endVertexName = tokenVect.at(1);
+    if (_desc.startVertexName == _desc.endVertexName)
       {
 	std::ostringstream oss;
 
-	oss << "Start and end nodes must be different";
+	oss << "Start and end vertices must be different";
 	throw std::invalid_argument(oss.str());
       }
   }
 
-  void DijkstraFileParser::parseArcNumber(std::ifstream& ifs)
+  void DijkstraFileParser::parseEdgeNumber(std::ifstream& ifs)
   {
     std::string line;
 
@@ -87,26 +87,26 @@ namespace graph::dijkstra
       {
 	std::ostringstream oss;
 
-	oss << "Missing argument about arc number line";
+	oss << "Missing argument about edge number line";
 	throw std::invalid_argument(oss.str());
       }
     else if (tokenVect.size() > 1)
       {
 	std::ostringstream oss;
 
-	oss << "Too much arguments about arc number line";
+	oss << "Too much arguments about edge number line";
 	throw std::invalid_argument(oss.str());
       }
     try
       {
-	const std::string& arcNbStr = tokenVect.at(0);
+	const std::string& edgeNbStr = tokenVect.at(0);
 
-	_desc.arcNb = boost::lexical_cast<ArcNumber_t>(arcNbStr);
-	if (arcNbStr.at(0) == '-')
+	_desc.edgeNb = boost::lexical_cast<EdgeNumber_t>(edgeNbStr);
+	if (edgeNbStr.at(0) == '-')
 	  {
 	    std::ostringstream oss;
 
-	    oss << "Arc number must be a positive integer";
+	    oss << "Edge number must be a positive integer";
 	    throw std::invalid_argument(oss.str());
 	  }
       }
@@ -114,22 +114,22 @@ namespace graph::dijkstra
       {
 	std::ostringstream oss;
 
-	oss << "Bad type. Arc number must be a integer";
+	oss << "Bad type. Edge number must be a integer";
 	throw std::invalid_argument(oss.str());
       }
-    if (_desc.arcNb == 0)
+    if (_desc.edgeNb == 0)
       {
 	std::ostringstream oss;
 
-	oss << "Arc number cannot be equal to 0";
+	oss << "Edge number cannot be equal to 0";
 	throw std::invalid_argument(oss.str());
       }
   }
 
-  void DijkstraFileParser::parseNodes(std::ifstream& ifs)
+  void DijkstraFileParser::parseVertices(std::ifstream& ifs)
   {
     std::string line;
-    std::uint32_t arcCount = 0;
+    std::uint32_t edgeCount = 0;
 
     while (std::getline(ifs, line, '\n'))
       {
@@ -144,7 +144,7 @@ namespace graph::dijkstra
 	    std::ostringstream oss;
 
 	    oss << "Missing arguments about "
-		<< "node, neighbor node and distance line";
+		<< "vertex, neighbor vertex and distance line";
 	    throw std::invalid_argument(oss.str());
 	  }
 	else if (tokenVect.size() > 3)
@@ -152,14 +152,14 @@ namespace graph::dijkstra
 	    std::ostringstream oss;
 
 	    oss << "Too much arguments about "
-		<< "node, neighbor node and distance line";
+		<< "vertex, neighbor vertex and distance line";
 	    throw std::invalid_argument(oss.str());
 	  }
 	if (tokenVect.at(0) == tokenVect.at(1))
 	  {
 	    std::ostringstream oss;
 	    
-	    oss << "Node and neighbor node must have different name";
+	    oss << "Vertex and neighbor vertex must have different name";
 	    throw std::invalid_argument(oss.str());
 	  }
 	try
@@ -182,23 +182,23 @@ namespace graph::dijkstra
 		throw std::invalid_argument(oss.str());
 	      }   
 	    if (!_desc
-		.nodes
-		.try_emplace(tokenVect.at(0), NeighboringNodes_t { })
+		.vertices
+		.try_emplace(tokenVect.at(0), NeighboringVertices_t { })
 		.first->second.try_emplace(tokenVect.at(1), distance)
 		.second)
 	      {
 		std::ostringstream oss;
 
-		oss << "Duplicate arc from "
+		oss << "Duplicate edge from "
 		    << tokenVect.at(0)
 		    << " to "
 		    << tokenVect.at(1);
 		throw std::invalid_argument(oss.str());
 	      }
 
-	    auto it = _desc.nodes.find(tokenVect.at(1));
+	    auto it = _desc.vertices.find(tokenVect.at(1));
 	    
-	    if (it != _desc.nodes.cend())
+	    if (it != _desc.vertices.cend())
 	      {
 		auto it2 = it->second.find(tokenVect.at(0));
 		
@@ -208,7 +208,7 @@ namespace graph::dijkstra
 		      {
 			std::ostringstream oss;
 			
-			oss << "Duplicate arc from "
+			oss << "Duplicate edge from "
 			    << tokenVect.at(0)
 			    << " to "
 			    << tokenVect.at(1)
@@ -217,10 +217,10 @@ namespace graph::dijkstra
 		      }
 		  }
 		else
-		  ++arcCount;
+		  ++edgeCount;
 	      }
 	    else
-	      ++arcCount;
+	      ++edgeCount;
 	  }
 	catch (const boost::bad_lexical_cast&)
 	  {
@@ -230,42 +230,42 @@ namespace graph::dijkstra
 	    throw std::invalid_argument(oss.str());
 	  }
       }
-    if (arcCount < _desc.arcNb)
+    if (edgeCount < _desc.edgeNb)
       {
 	std::ostringstream oss;
 
-	oss << "Missing arcs. Number of arcs must be equal to "
-	    << _desc.arcNb;
+	oss << "Missing edges. Number of edges must be equal to "
+	    << _desc.edgeNb;
 	throw std::invalid_argument(oss.str());
       }
-    else if (arcCount > _desc.arcNb)
+    else if (edgeCount > _desc.edgeNb)
       {
 	std::ostringstream oss;
 
-	oss << "Too much arcs. Number of arcs must be equal to "
-	    << _desc.arcNb;
+	oss << "Too much edges. Number of edges must be equal to "
+	    << _desc.edgeNb;
 	throw std::invalid_argument(oss.str());
       }
-    for (const auto& pair : _desc.nodes)
+    for (const auto& pair : _desc.vertices)
       {
 	for (const auto& pair2 : pair.second)
 	  {
-	    auto it = _desc.nodes.find(pair2.first);
+	    auto it = _desc.vertices.find(pair2.first);
 
-	    if (it == _desc.nodes.cend())
+	    if (it == _desc.vertices.cend())
 	      {
 		std::ostringstream oss;
 
-		oss << "Missing info arc with node " << pair2.first;
+		oss << "Missing info edge with vertex " << pair2.first;
 		throw std::invalid_argument(oss.str());
 	      }
 	    if (it->second.find(pair.first) == it->second.cend())
 	      {
 		std::ostringstream oss;
 		
-		oss << "Missing info arc with node "
+		oss << "Missing info edge with vertex "
 		    << pair2.first
-		    << " and neighbor node "
+		    << " and neighbor vertex "
 		    << pair.first;
 		throw std::invalid_argument(oss.str());
 	      }

@@ -23,9 +23,9 @@ namespace graph::dijkstra
     void accept(AGraphAlgorithm&) const noexcept override;
 
   private :
-    void parseStartEndNodes(std::ifstream&);
-    void parseArcNumber(std::ifstream&);
-    void parseNodes(std::ifstream&);
+    void parseStartEndVertices(std::ifstream&);
+    void parseEdgeNumber(std::ifstream&);
+    void parseVertices(std::ifstream&);
   };
 }
 

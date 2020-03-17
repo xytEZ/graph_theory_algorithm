@@ -10,9 +10,9 @@
 
 namespace graph::dijkstra
 {
-  bool DijkstraAlgorithm::NodeDistanceWithTraceGreater
-  ::NodeDistanceWithTraceGreater::operator()
-    (const NodeDistanceWithTrace& lhs, const NodeDistanceWithTrace& rhs)
+  bool DijkstraAlgorithm::VertexDistanceWithTraceGreater
+  ::VertexDistanceWithTraceGreater::operator()
+    (const VertexDistanceWithTrace& lhs, const VertexDistanceWithTrace& rhs)
     const noexcept
   {
     return lhs.cumulativeDist > rhs.cumulativeDist;
@@ -20,7 +20,7 @@ namespace graph::dijkstra
   
   DijkstraAlgorithm::DijkstraAlgorithm() :
     _desc(nullptr),
-    _result({ false, 0, std::queue<NodeName_t> { } })
+    _result({ false, 0, std::queue<VertexName_t> { } })
   { }
   
   void DijkstraAlgorithm::init(const DijkstraFileParser& parser)
@@ -30,41 +30,42 @@ namespace graph::dijkstra
 
   void DijkstraAlgorithm::execute()
   {
-    using PrQueue_t = std::priority_queue<NodeDistanceWithTrace,
-					  std::vector<NodeDistanceWithTrace>,
-					  NodeDistanceWithTraceGreater>;
+    using PrQueue_t = std::priority_queue<VertexDistanceWithTrace,
+					  std::vector<VertexDistanceWithTrace>,
+					  VertexDistanceWithTraceGreater>;
 
-    std::unordered_set<NodeName_t> visitedNodeSet;
-    PrQueue_t ndwtQueue;
+    std::unordered_set<VertexName_t> visitedVertexSet;
+    PrQueue_t vdwtQueue;
 
-    visitedNodeSet.reserve(_desc->nodes.size());
-    ndwtQueue.push({ _desc->startNodeName, 0, std::queue<NodeName_t> { } }); 
-    while (!ndwtQueue.empty())
+    visitedVertexSet.reserve(_desc->vertices.size());
+    vdwtQueue
+      .push({ _desc->startVertexName, 0, std::queue<VertexName_t> { } }); 
+    while (!vdwtQueue.empty())
       {
-	NodeDistanceWithTrace ndwt = std::move(ndwtQueue.top());
+	VertexDistanceWithTrace vdwt = std::move(vdwtQueue.top());
 
-	if (ndwt.nodeName == _desc->endNodeName)
+	if (vdwt.vertexName == _desc->endVertexName)
 	  {
 	    _result.pathFound = true;
-	    _result.totalDistance = ndwt.cumulativeDist;
-	    _result.visitedNodeQueue = std::move(ndwt.visitedNodeQueue);
-	    _result.visitedNodeQueue.push(ndwt.nodeName);
+	    _result.totalDistance = vdwt.cumulativeDist;
+	    _result.visitedVertexQueue = std::move(vdwt.visitedVertexQueue);
+	    _result.visitedVertexQueue.push(vdwt.vertexName);
 	    break;
 	  }
-	ndwtQueue.pop();
-	if (!visitedNodeSet.emplace(ndwt.nodeName).second)
+	vdwtQueue.pop();
+	if (!visitedVertexSet.emplace(vdwt.vertexName).second)
 	  continue;
-	for (const auto& pair : _desc->nodes.at(ndwt.nodeName))
+	for (const auto& pair : _desc->vertices.at(vdwt.vertexName))
 	  {
-	    if (visitedNodeSet.find(pair.first) == visitedNodeSet.cend())
+	    if (visitedVertexSet.find(pair.first) == visitedVertexSet.cend())
 	      {
-		NodeDistanceWithTrace newNdwt;
+		VertexDistanceWithTrace newVdwt;
 
-		newNdwt.nodeName = pair.first;
-		newNdwt.cumulativeDist = ndwt.cumulativeDist + pair.second;
-		newNdwt.visitedNodeQueue = ndwt.visitedNodeQueue;
-		newNdwt.visitedNodeQueue.push(ndwt.nodeName);
-		ndwtQueue.push(std::move(newNdwt));
+		newVdwt.vertexName = pair.first;
+		newVdwt.cumulativeDist = vdwt.cumulativeDist + pair.second;
+		newVdwt.visitedVertexQueue = vdwt.visitedVertexQueue;
+		newVdwt.visitedVertexQueue.push(vdwt.vertexName);
+		vdwtQueue.push(std::move(newVdwt));
 	      }
 	  }    
       }
@@ -72,10 +73,10 @@ namespace graph::dijkstra
   
   std::ostream& DijkstraAlgorithm::graphDesc(std::ostream& os) const noexcept
   {    
-    os << "Start node : " << _desc->startNodeName << std::endl;
-    os << "End node : " << _desc->endNodeName << std::endl;
-    os << "Arc number : " << _desc->arcNb << std::endl;
-    for (const auto& pair : _desc->nodes)
+    os << "Start vertex : " << _desc->startVertexName << std::endl;
+    os << "End vertex : " << _desc->endVertexName << std::endl;
+    os << "Edge number : " << _desc->edgeNb << std::endl;
+    for (const auto& pair : _desc->vertices)
       {
 	os << pair.first << " neighbors : ";
 
@@ -106,23 +107,24 @@ namespace graph::dijkstra
 	   << std::endl;
 	os << "Best path : ";
 
-	std::string prevNodeName;
-	std::queue<NodeName_t> cpyVisitedNodeQueue = _result.visitedNodeQueue;
+	std::string prevVertexName;
+	std::queue<VertexName_t> cpyVisitedVertexQueue =
+	  _result.visitedVertexQueue;
 
-	while (!cpyVisitedNodeQueue.empty())
+	while (!cpyVisitedVertexQueue.empty())
 	  {
-	    NodeName_t nodeName = std::move(cpyVisitedNodeQueue.front());
+	    VertexName_t vertexName = std::move(cpyVisitedVertexQueue.front());
 
-	    cpyVisitedNodeQueue.pop();
-	    os << nodeName;
-	    if (prevNodeName.empty())
+	    cpyVisitedVertexQueue.pop();
+	    os << vertexName;
+	    if (prevVertexName.empty())
 	      os << " (0)";
 	    else
 	      os << " ("
-		 << _desc->nodes.at(prevNodeName).at(nodeName)
+		 << _desc->vertices.at(prevVertexName).at(vertexName)
 		 << ")";
-	    prevNodeName = std::move(nodeName);
-	    if (!cpyVisitedNodeQueue.empty())
+	    prevVertexName = std::move(vertexName);
+	    if (!cpyVisitedVertexQueue.empty())
 	      os << " -> ";
 	  }
 	os << std::endl;

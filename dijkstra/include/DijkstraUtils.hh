@@ -8,33 +8,33 @@
 
 namespace graph::dijkstra
 {
-  using NodeName_t = std::string;
+  using VertexName_t = std::string;
   using Distance_t = std::uint32_t;
-  using ArcNumber_t = std::uint32_t;
-  using NeighboringNodes_t = std::unordered_map<NodeName_t, Distance_t>;
-  using NodesWithNeighboringNodes_t =
-    std::unordered_map<NodeName_t, NeighboringNodes_t>;
+  using EdgeNumber_t = std::uint32_t;
+  using NeighboringVertices_t = std::unordered_map<VertexName_t, Distance_t>;
+  using VerticesWithNeighboringVertices_t =
+    std::unordered_map<VertexName_t, NeighboringVertices_t>;
 
-  struct NodeDistanceWithTrace
+  struct VertexDistanceWithTrace
   {
-    NodeName_t nodeName;
+    VertexName_t vertexName;
     Distance_t cumulativeDist;
-    std::queue<NodeName_t> visitedNodeQueue;
+    std::queue<VertexName_t> visitedVertexQueue;
   };
   
   struct GraphDesc
   {
-    NodeName_t startNodeName;
-    NodeName_t endNodeName;
-    ArcNumber_t arcNb;
-    NodesWithNeighboringNodes_t nodes;
+    VertexName_t startVertexName;
+    VertexName_t endVertexName;
+    EdgeNumber_t edgeNb;
+    VerticesWithNeighboringVertices_t vertices;
   };
   
   struct GraphResult
   {
     bool pathFound;
     Distance_t totalDistance;
-    std::queue<NodeName_t> visitedNodeQueue;
+    std::queue<VertexName_t> visitedVertexQueue;
   };
 }
 

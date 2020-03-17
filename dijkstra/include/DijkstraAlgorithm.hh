@@ -8,11 +8,11 @@ namespace graph::dijkstra
 {
   class DijkstraAlgorithm : public AGraphAlgorithm
   {
-    class NodeDistanceWithTraceGreater
+    class VertexDistanceWithTraceGreater
     {
     public :
-      bool operator()(const NodeDistanceWithTrace&,
-		      const NodeDistanceWithTrace&) const noexcept;
+      bool operator()(const VertexDistanceWithTrace&,
+		      const VertexDistanceWithTrace&) const noexcept;
     };
     
     const GraphDesc *_desc;
