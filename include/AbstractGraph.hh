@@ -3,6 +3,7 @@
 
 # include <string>
 # include <ostream>
+# include <fstream>
 
 namespace graph
 {
@@ -29,8 +30,11 @@ namespace graph
   public :
     AGraphFileParser(const std::string&);
     virtual ~AGraphFileParser() = default;
-    virtual void parse() = 0;
     virtual void accept(AGraphAlgorithm&) const noexcept = 0;
+    void parse();
+
+  private :
+    virtual void onParse(std::ifstream&) = 0; 
   };
 }
 

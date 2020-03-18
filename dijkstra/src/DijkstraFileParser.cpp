@@ -1,5 +1,4 @@
 #include <sstream>
-#include <stdexcept>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -12,19 +11,8 @@ namespace graph::dijkstra
     _graph({ "", "", 0, { } })
   { }
 
-  void DijkstraFileParser::parse()
-  {    
-    std::ifstream ifs(AGraphFileParser::_fileName);
-
-    if (ifs.fail())
-      {
-	std::ostringstream oss;
-
-	oss << "Error by opening \""
-	    << AGraphFileParser::_fileName
-	    << "\" file";
-	throw std::runtime_error(oss.str());
-      }
+  void DijkstraFileParser::onParse(std::ifstream& ifs)
+  {
     parseStartEndVertices(ifs);
     parseEdgeNumber(ifs);
     parseVertices(ifs);

@@ -19,10 +19,10 @@ namespace graph::dijkstra
   public :
     DijkstraFileParser(const std::string&);
     ~DijkstraFileParser() override = default;
-    void parse() override;
     void accept(AGraphAlgorithm&) const noexcept override;
 
   private :
+    void onParse(std::ifstream&) override;
     void parseStartEndVertices(std::ifstream&);
     void parseEdgeNumber(std::ifstream&);
     void parseVertices(std::ifstream&);
