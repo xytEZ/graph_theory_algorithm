@@ -57,12 +57,15 @@ namespace graph::dijkstra
 	  continue;
 	for (const auto& pair : _graph->vertices.at(vdwt.vertexName))
 	  {
-	    if (visitedVertexSet.find(pair.first) == visitedVertexSet.cend())
+	    const VertexName_t& destVertex = pair.first;
+	    Distance_t srcToDestDist = pair.second;
+	    
+	    if (visitedVertexSet.find(destVertex) == visitedVertexSet.cend())
 	      {
 		VertexDistanceWithTrace newVdwt;
 
-		newVdwt.vertexName = pair.first;
-		newVdwt.cumulativeDist = vdwt.cumulativeDist + pair.second;
+		newVdwt.vertexName = destVertex;
+		newVdwt.cumulativeDist = vdwt.cumulativeDist + srcToDestDist;
 		newVdwt.visitedVertexQueue = vdwt.visitedVertexQueue;
 		newVdwt.visitedVertexQueue.push(vdwt.vertexName);
 		vdwtQueue.push(std::move(newVdwt));
@@ -78,10 +81,13 @@ namespace graph::dijkstra
     os << "Edge number : " << _graph->edgeNb << std::endl;
     for (const auto& pair : _graph->vertices)
       {
-	os << pair.first << " neighbors : ";
+	const VertexName_t& srcVertex = pair.first;
+	const NeighboringVertices_t& neighboringVertices = pair.second;
+	
+	os << srcVertex << " neighbors : ";
 
-	auto start = pair.second.cbegin();
-	auto end = pair.second.cend();
+	auto start = neighboringVertices.cbegin();
+	auto end = neighboringVertices.cend();
 
 	while (start != end)
 	  {

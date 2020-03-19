@@ -238,12 +238,14 @@ namespace graph::dijkstra
       {
 	for (const auto& pair2 : pair.second)
 	  {
-	    if (_graph.vertices.find(pair2.first) == _graph.vertices.cend()
-	      && pair2.first != _graph.endVertexName)
+	    const VertexName_t& destVertex = pair2.first;
+	    
+	    if (_graph.vertices.find(destVertex) == _graph.vertices.cend()
+		&& destVertex != _graph.endVertexName)
 	      {
 		std::ostringstream oss;
-
-		oss << "Missing info edge with vertex " << pair2.first;
+		
+		oss << "Missing info edge with vertex " << destVertex;
 		throw std::invalid_argument(oss.str());
 	      }
 	  }
