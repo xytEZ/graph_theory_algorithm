@@ -204,21 +204,6 @@ namespace graph::bellman_ford
 		    << tokenVect.at(1);
 		throw std::invalid_argument(oss.str());
 	      }
-	    
-	    auto it = _graph.vertices.find(tokenVect.at(1));
-	    
-	    if (it != _graph.vertices.cend()
-		&& it->second.find(tokenVect.at(0)) != it->second.cend())
-	      {
-		std::ostringstream oss;
-		
-		oss << "Duplicate edge from "
-		    << tokenVect.at(0)
-		    << " to "
-		    << tokenVect.at(1)
-		    << ". Graph must be oriented";
-		throw std::invalid_argument(oss.str());
-	      }
 	    ++edgeCount;
 	  }
 	catch (const boost::bad_lexical_cast&)
