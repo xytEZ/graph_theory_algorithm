@@ -238,23 +238,12 @@ namespace graph::dijkstra
       {
 	for (const auto& pair2 : pair.second)
 	  {
-	    auto it = _graph.vertices.find(pair2.first);
-
-	    if (it == _graph.vertices.cend())
+	    if (_graph.vertices.find(pair2.first) == _graph.vertices.cend()
+	      && pair2.first != _graph.endVertexName)
 	      {
 		std::ostringstream oss;
 
 		oss << "Missing info edge with vertex " << pair2.first;
-		throw std::invalid_argument(oss.str());
-	      }
-	    if (it->second.find(pair.first) == it->second.cend())
-	      {
-		std::ostringstream oss;
-		
-		oss << "Missing info edge with vertex "
-		    << pair2.first
-		    << " and neighbor vertex "
-		    << pair.first;
 		throw std::invalid_argument(oss.str());
 	      }
 	  }
