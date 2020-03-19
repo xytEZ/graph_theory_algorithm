@@ -98,7 +98,7 @@ namespace graph::dijkstra
 	  }
 	os << std::endl;
       }
-    os << std::endl;
+    os << std::endl << std::endl;
     return os;
   }
 

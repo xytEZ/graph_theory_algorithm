@@ -28,6 +28,7 @@ namespace graph::bellman_ford
     bool pathFound;
     bool negativeCycle;
     std::unordered_map<VertexName_t, Distance_t> bestDistMap;
+    std::unordered_map<VertexName_t, VertexName_t> predecessorMap;
   };
 }
 

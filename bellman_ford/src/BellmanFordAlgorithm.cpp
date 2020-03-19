@@ -1,5 +1,6 @@
 #include <iostream>
 #include <utility>
+#include <stack>
 
 #include "BellmanFordFileParser.hh"
 
@@ -11,7 +12,7 @@ namespace graph::bellman_ford
   
   BellmanFordAlgorithm::BellmanFordAlgorithm() :
     _graph(nullptr),
-    _result { false, false, { } }
+    _result { false, false, { }, { } }
   { }
 
   void BellmanFordAlgorithm::init(const BellmanFordFileParser& parser)
@@ -22,6 +23,7 @@ namespace graph::bellman_ford
   void BellmanFordAlgorithm::execute()
   {
     std::unordered_map<VertexName_t, Distance_t> bestDistMap;
+    std::unordered_map<VertexName_t, VertexName_t> predecessorMap;
 
     bestDistMap.reserve(_graph->vertexNb);
     for (const auto& pair : _graph->vertices)
@@ -32,7 +34,7 @@ namespace graph::bellman_ford
       }
     bestDistMap.try_emplace(_graph->endVertexName, INFINITE_VALUE);
     bestDistMap.at(_graph->startVertexName) = 0;
-    for (std::uint32_t i = 0; i < _graph->vertexNb; ++i)
+    for (std::uint32_t i = 1; i <= _graph->vertexNb - 1; ++i)
       {
 	for (const auto& pair : _graph->vertices)
 	  {
@@ -44,7 +46,11 @@ namespace graph::bellman_ford
 		const VertexName_t& destVertex = pair2.first;
 		Distance_t srcToDestDist = pair2.second;
 
-		relax(bestDistMap, srcVertex, destVertex, srcToDestDist);
+		relax(bestDistMap,
+		      predecessorMap,
+		      srcVertex,
+		      destVertex,
+		      srcToDestDist);
 	      }
 	  }
       }
@@ -69,10 +75,12 @@ namespace graph::bellman_ford
       }
     _result.pathFound = true;
     _result.bestDistMap = std::move(bestDistMap);
+    _result.predecessorMap = std::move(predecessorMap);
   }
   
   void BellmanFordAlgorithm
   ::relax(std::unordered_map<VertexName_t, Distance_t>& bestDistMap,
+	  std::unordered_map<VertexName_t, VertexName_t>& predecessorMap,
 	  const std::string& srcVertex,
 	  const std::string& destVertex,
 	  Distance_t srcToDestDist) const noexcept
@@ -82,7 +90,14 @@ namespace graph::bellman_ford
 
     if (srcVertexDist != INFINITE_VALUE
 	&& srcVertexDist + srcToDestDist < destVertexDist)
-      bestDistMap.at(destVertex) = srcVertexDist + srcToDestDist;
+      {
+	bestDistMap.at(destVertex) = srcVertexDist + srcToDestDist;
+	
+	auto res = predecessorMap.try_emplace(destVertex, srcVertex);
+
+	if (!res.second)
+	  res.first->second = srcVertex;
+      }
   }
 
   std::ostream& BellmanFordAlgorithm::description(std::ostream& os)
@@ -111,7 +126,7 @@ namespace graph::bellman_ford
 	  }
 	os << std::endl;
       }
-    os << std::endl;
+    os << std::endl << std::endl;
     return os;
   }
 
@@ -140,6 +155,39 @@ namespace graph::bellman_ford
 	   << "Best distance from start to end vertex : "
 	   << _result.bestDistMap.at(_graph->endVertexName)
 	   << std::endl;
+
+	std::stack<VertexName_t> bestPathStack;
+	VertexName_t predVertexName = _graph->endVertexName;
+	std::unordered_map<VertexName_t, VertexName_t>::const_iterator it;
+	
+	while ((it = _result.predecessorMap.find(predVertexName))
+	       != _result.predecessorMap.cend())
+	  {
+	    bestPathStack.push(predVertexName);
+	    predVertexName = it->second;
+	  }
+	bestPathStack.push(predVertexName);
+
+	std::string prevVertexName;
+	
+	os << "Best path : ";
+	while (!bestPathStack.empty())
+	  {
+	    VertexName_t vertexName = std::move(bestPathStack.top());
+
+	    bestPathStack.pop();
+	    os << vertexName;
+	    if (prevVertexName.empty())
+	      os << " (0)";
+	    else
+	      os << " ("
+		 << _graph->vertices.at(prevVertexName).at(vertexName)
+		 << ")";
+	    prevVertexName = std::move(vertexName);
+	    if (!bestPathStack.empty())
+	      os << " -> ";
+	  }
+	os << std::endl;
       }
     return os;
   }
