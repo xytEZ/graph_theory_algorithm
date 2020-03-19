@@ -236,7 +236,9 @@ namespace graph::dijkstra
       }
     for (const auto& pair : _graph.vertices)
       {
-	for (const auto& pair2 : pair.second)
+	const NeighboringVertices_t& neighboringVertices = pair.second;
+	
+	for (const auto& pair2 : neighboringVertices)
 	  {
 	    const VertexName_t& destVertex = pair2.first;
 	    
