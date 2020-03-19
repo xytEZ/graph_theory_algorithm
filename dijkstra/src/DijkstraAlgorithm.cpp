@@ -20,7 +20,7 @@ namespace graph::dijkstra
   
   DijkstraAlgorithm::DijkstraAlgorithm() :
     _graph(nullptr),
-    _result({ false, 0, std::queue<VertexName_t> { } })
+    _result { false, 0, std::queue<VertexName_t> { } }
   { }
   
   void DijkstraAlgorithm::init(const DijkstraFileParser& parser)

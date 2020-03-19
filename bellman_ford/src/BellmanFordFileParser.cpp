@@ -1,33 +1,32 @@
-#include <sstream>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <vector>
 
-#include "DijkstraFileParser.hh"
+#include "BellmanFordFileParser.hh"
 
-namespace graph::dijkstra
+namespace graph::bellman_ford
 {
-  DijkstraFileParser::DijkstraFileParser(const std::string& fileName) :
+  BellmanFordFileParser::BellmanFordFileParser(const std::string& fileName) :
     AGraphFileParser(fileName),
-    _graph { "", "", 0, { } }
+    _graph { "", "", 0, 0, { } }
   { }
 
-  void DijkstraFileParser::onParse(std::ifstream& ifs)
+  void BellmanFordFileParser::onParse(std::ifstream& ifs)
   {
     parseStartEndVertices(ifs);
-    parseEdgeNumber(ifs);
+    parseVertexEdgeNumber(ifs);
     parseEdges(ifs);
   }
 
-  void DijkstraFileParser::accept(AGraphAlgorithm& graphAlgo)
-    const noexcept
+  void BellmanFordFileParser::accept(AGraphAlgorithm& graphAlgo) const noexcept
   {
     graphAlgo.init(*this);
   }
 
-  void DijkstraFileParser::parseStartEndVertices(std::ifstream& ifs)
+  void BellmanFordFileParser::parseStartEndVertices(std::ifstream& ifs)
   {
     std::string line;
-    
+
     std::getline(ifs, line, '\n');
     if (ifs.fail())
       throw std::runtime_error("Getline error");
@@ -60,7 +59,7 @@ namespace graph::dijkstra
       }
   }
 
-  void DijkstraFileParser::parseEdgeNumber(std::ifstream& ifs)
+  void BellmanFordFileParser::parseVertexEdgeNumber(std::ifstream& ifs)
   {
     std::string line;
 
@@ -69,16 +68,16 @@ namespace graph::dijkstra
       throw std::runtime_error("Getline error");
 
     std::vector<std::string> tokenVect;
-    
+
     boost::split(tokenVect, line, boost::is_any_of(" \t"));
-    if (tokenVect.size() < 1)
+    if (tokenVect.size() < 2)
       {
 	std::ostringstream oss;
 
-	oss << "Missing argument about edge number line";
+	oss << "Missing arguments about vertex and edge number";
 	throw std::invalid_argument(oss.str());
       }
-    else if (tokenVect.size() > 1)
+    else if (tokenVect.size() > 2)
       {
 	std::ostringstream oss;
 
@@ -87,7 +86,34 @@ namespace graph::dijkstra
       }
     try
       {
-	const std::string& edgeNbStr = tokenVect.at(0);
+	const std::string& vertexNbStr = tokenVect.at(0);
+
+	_graph.vertexNb = boost::lexical_cast<VertexNumber_t>(vertexNbStr);
+	if (vertexNbStr.at(0) == '-')
+	  {
+	    std::ostringstream oss;
+
+	    oss << "Vertex number must be a positive integer";
+	    throw std::invalid_argument(oss.str());
+	  }
+	else if (_graph.vertexNb == 0)
+	  {
+	    std::ostringstream oss;
+
+	    oss << "Vertex number cannot be equal to 0";
+	    throw std::invalid_argument(oss.str());
+	  }
+      }
+    catch (const boost::bad_lexical_cast&)
+      {
+	std::ostringstream oss;
+
+	oss << "Bad type. Vertex number must be a integer";
+	throw std::invalid_argument(oss.str());
+      }
+    try
+      {
+	const std::string& edgeNbStr = tokenVect.at(1);
 
 	_graph.edgeNb = boost::lexical_cast<EdgeNumber_t>(edgeNbStr);
 	if (edgeNbStr.at(0) == '-')
@@ -97,10 +123,10 @@ namespace graph::dijkstra
 	    oss << "Edge number must be a positive integer";
 	    throw std::invalid_argument(oss.str());
 	  }
-	if (_graph.edgeNb == 0)
+	else if (_graph.edgeNb == 0)
 	  {
 	    std::ostringstream oss;
-	    
+
 	    oss << "Edge number cannot be equal to 0";
 	    throw std::invalid_argument(oss.str());
 	  }
@@ -108,13 +134,13 @@ namespace graph::dijkstra
     catch (const boost::bad_lexical_cast&)
       {
 	std::ostringstream oss;
-
+	
 	oss << "Bad type. Edge number must be a integer";
-	throw std::invalid_argument(oss.str());
+	throw std::invalid_argument(oss.str());	
       }
   }
 
-  void DijkstraFileParser::parseEdges(std::ifstream& ifs)
+  void BellmanFordFileParser::parseEdges(std::ifstream& ifs)
   {
     std::string line;
     std::uint32_t edgeCount = 0;
@@ -143,7 +169,16 @@ namespace graph::dijkstra
 		<< "vertex, neighbor vertex and distance line";
 	    throw std::invalid_argument(oss.str());
 	  }
-	if (tokenVect.at(0) == tokenVect.at(1))
+	else if (tokenVect.at(0) == _graph.endVertexName)
+	  {
+	    std::ostringstream oss;
+
+	    oss << "Cannot have links for "
+		<< tokenVect.at(0)
+		<< " vertex because it's the destination";
+	    throw std::invalid_argument(oss.str());
+	  }
+	else if (tokenVect.at(0) == tokenVect.at(1))
 	  {
 	    std::ostringstream oss;
 	    
@@ -154,21 +189,7 @@ namespace graph::dijkstra
 	  {
 	    const std::string& distanceStr = tokenVect.at(2);
 	    Distance_t distance = boost::lexical_cast<Distance_t>(distanceStr);
-
-	    if (distanceStr.at(0) == '-')
-	      {
-		std::ostringstream oss;
-
-		oss << "Distance must be a positive integer";
-		throw std::invalid_argument(oss.str());
-	      }
-	    else if (distance == 0)
-	      {
-		std::ostringstream oss;
-
-		oss << "Distance cannot be equal to 0";
-		throw std::invalid_argument(oss.str());
-	      }   
+   
 	    if (!_graph
 		.vertices
 		.try_emplace(tokenVect.at(0), NeighboringVertices_t { })
@@ -183,32 +204,22 @@ namespace graph::dijkstra
 		    << tokenVect.at(1);
 		throw std::invalid_argument(oss.str());
 	      }
-
+	    
 	    auto it = _graph.vertices.find(tokenVect.at(1));
 	    
-	    if (it != _graph.vertices.cend())
+	    if (it != _graph.vertices.cend()
+		&& it->second.find(tokenVect.at(0)) != it->second.cend())
 	      {
-		auto it2 = it->second.find(tokenVect.at(0));
+		std::ostringstream oss;
 		
-		if (it2 != it->second.cend())
-		  {
-		    if (it2->second != distance)
-		      {
-			std::ostringstream oss;
-			
-			oss << "Duplicate edge from "
-			    << tokenVect.at(0)
-			    << " to "
-			    << tokenVect.at(1)
-			    << " with different distance";
-			throw std::invalid_argument(oss.str());
-		      }
-		  }
-		else
-		  ++edgeCount;
+		oss << "Duplicate edge from "
+		    << tokenVect.at(0)
+		    << " to "
+		    << tokenVect.at(1)
+		    << ". Graph must be oriented";
+		throw std::invalid_argument(oss.str());
 	      }
-	    else
-	      ++edgeCount;
+	    ++edgeCount;
 	  }
 	catch (const boost::bad_lexical_cast&)
 	  {
@@ -222,7 +233,7 @@ namespace graph::dijkstra
       {
 	std::ostringstream oss;
 
-	oss << "Missing edges. Number of edges must be equal to "
+	oss << "Missing edge. Number of edges must be equal to "
 	    << _graph.edgeNb;
 	throw std::invalid_argument(oss.str());
       }
@@ -230,15 +241,29 @@ namespace graph::dijkstra
       {
 	std::ostringstream oss;
 
-	oss << "Too much edges. Number of edges must be equal to "
+	oss << "Too much edge. Number of edges must be equal to "
 	    << _graph.edgeNb;
+	throw std::invalid_argument(oss.str());
+      }
+    else if (_graph.vertices.size() < _graph.vertexNb - 1)
+      {
+	std::ostringstream oss;
+
+	oss << "Missing vertex. Number of vertex must be equal to "
+	    << _graph.vertexNb;
+	throw std::invalid_argument(oss.str());
+      }
+    else if (_graph.vertices.size() > _graph.vertexNb - 1)
+      {
+	std::ostringstream oss;
+
+	oss << "Too much vertex. Number of vertex must be equal to "
+	    << _graph.vertexNb;
 	throw std::invalid_argument(oss.str());
       }
     for (const auto& pair : _graph.vertices)
       {
-	const NeighboringVertices_t& neighboringVertices = pair.second;
-	
-	for (const auto& pair2 : neighboringVertices)
+	for (const auto& pair2 : pair.second)
 	  {
 	    const VertexName_t& destVertex = pair2.first;
 	    
@@ -246,7 +271,7 @@ namespace graph::dijkstra
 		&& destVertex != _graph.endVertexName)
 	      {
 		std::ostringstream oss;
-		
+
 		oss << "Missing info edge with vertex " << destVertex;
 		throw std::invalid_argument(oss.str());
 	      }

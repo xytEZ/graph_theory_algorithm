@@ -17,10 +17,12 @@ add_executable(graphTheoryAlgo ${SRCS})
 find_package(Boost COMPONENTS program_options REQUIRED)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/dijkstra)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/bellman_ford)
 
 target_link_libraries(graphTheoryAlgo PRIVATE
   ${Boost_LIBRARIES}
-  dijkstra_lib)
+  dijkstra_lib
+  bellman_ford_lib)
 
 target_include_directories(graphTheoryAlgo PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}

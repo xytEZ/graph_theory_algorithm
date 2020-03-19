@@ -11,12 +11,18 @@ namespace graph
   {
     class DijkstraFileParser;
   }
+
+  namespace bellman_ford
+  {
+    class BellmanFordFileParser;
+  }
   
   class AGraphAlgorithm
   {
   public :
     virtual ~AGraphAlgorithm() = default;
-    virtual void init(const dijkstra::DijkstraFileParser&); 
+    virtual void init(const dijkstra::DijkstraFileParser&);
+    virtual void init(const bellman_ford::BellmanFordFileParser&);
     virtual void execute() = 0;
     virtual std::ostream& description(std::ostream&) const noexcept = 0;
     virtual std::ostream& result(std::ostream&) const noexcept = 0;

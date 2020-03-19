@@ -10,6 +10,11 @@ namespace graph
     throw std::logic_error("Must be redefined by subclass");
   }
 
+  void AGraphAlgorithm::init(const bellman_ford::BellmanFordFileParser&)
+  {
+    throw std::logic_error("Must be redefined by subclass");
+  }
+
   AGraphFileParser::AGraphFileParser(const std::string& fileName) :
     _fileName(fileName)
   { }
@@ -22,9 +27,7 @@ namespace graph
       {
 	std::ostringstream oss;
 
-	oss << "Error by opening \""
-	    << AGraphFileParser::_fileName
-	    << "\" file";
+	oss << "Error by opening \"" << _fileName << "\" file";
 	throw std::runtime_error(oss.str());
       }
     onParse(ifs);
