@@ -15,7 +15,7 @@ namespace graph::dijkstra
   {
     parseStartEndVertices(ifs);
     parseEdgeNumber(ifs);
-    parseVertices(ifs);
+    parseEdges(ifs);
   }
 
   void DijkstraFileParser::accept(AGraphAlgorithm& graphAlgo)
@@ -114,7 +114,7 @@ namespace graph::dijkstra
       }
   }
 
-  void DijkstraFileParser::parseVertices(std::ifstream& ifs)
+  void DijkstraFileParser::parseEdges(std::ifstream& ifs)
   {
     std::string line;
     std::uint32_t edgeCount = 0;

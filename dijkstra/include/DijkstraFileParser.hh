@@ -25,7 +25,7 @@ namespace graph::dijkstra
     void onParse(std::ifstream&) override;
     void parseStartEndVertices(std::ifstream&);
     void parseEdgeNumber(std::ifstream&);
-    void parseVertices(std::ifstream&);
+    void parseEdges(std::ifstream&);
   };
 }
 

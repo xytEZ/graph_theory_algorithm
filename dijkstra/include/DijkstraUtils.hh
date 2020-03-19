@@ -12,7 +12,7 @@ namespace graph::dijkstra
   using Distance_t = std::uint32_t;
   using EdgeNumber_t = std::uint32_t;
   using NeighboringVertices_t = std::unordered_map<VertexName_t, Distance_t>;
-  using VerticesWithNeighboringVertices_t =
+  using VertexAdjacencyList_t =
     std::unordered_map<VertexName_t, NeighboringVertices_t>;
 
   struct Graph
@@ -20,7 +20,7 @@ namespace graph::dijkstra
     VertexName_t startVertexName;
     VertexName_t endVertexName;
     EdgeNumber_t edgeNb;
-    VerticesWithNeighboringVertices_t vertices;
+    VertexAdjacencyList_t vertices;
   };
   
   struct Result
