@@ -97,19 +97,19 @@ namespace graph::dijkstra
 	    oss << "Edge number must be a positive integer";
 	    throw std::invalid_argument(oss.str());
 	  }
+	if (_graph.edgeNb == 0)
+	  {
+	    std::ostringstream oss;
+	    
+	    oss << "Edge number cannot be equal to 0";
+	    throw std::invalid_argument(oss.str());
+	  }
       }
     catch (const boost::bad_lexical_cast&)
       {
 	std::ostringstream oss;
 
 	oss << "Bad type. Edge number must be a integer";
-	throw std::invalid_argument(oss.str());
-      }
-    if (_graph.edgeNb == 0)
-      {
-	std::ostringstream oss;
-
-	oss << "Edge number cannot be equal to 0";
 	throw std::invalid_argument(oss.str());
       }
   }
