@@ -32,6 +32,7 @@ namespace graph::bellman_ford
   private :
     void relax(std::unordered_map<VertexName_t, Distance_t>&,
 	       std::unordered_map<VertexName_t, VertexName_t>&,
+	       bool&,
 	       const std::string&,
 	       const std::string&,
 	       Distance_t) const noexcept;

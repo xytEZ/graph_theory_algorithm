@@ -34,8 +34,12 @@ namespace graph::bellman_ford
       }
     bestDistMap.try_emplace(_graph->endVertexName, INFINITE_VALUE);
     bestDistMap.at(_graph->startVertexName) = 0;
-    for (std::uint32_t i = 1; i <= _graph->vertexNb - 1; ++i)
+
+    bool modification = true;
+    
+    for (std::uint32_t i = 1; i <= _graph->vertexNb - 1 && modification; ++i)
       {
+	modification = false;
 	for (const auto& pair : _graph->vertices)
 	  {
 	    const VertexName_t& srcVertex = pair.first;
@@ -48,6 +52,7 @@ namespace graph::bellman_ford
 
 		relax(bestDistMap,
 		      predecessorMap,
+		      modification,
 		      srcVertex,
 		      destVertex,
 		      srcToDestDist);
@@ -81,6 +86,7 @@ namespace graph::bellman_ford
   void BellmanFordAlgorithm
   ::relax(std::unordered_map<VertexName_t, Distance_t>& bestDistMap,
 	  std::unordered_map<VertexName_t, VertexName_t>& predecessorMap,
+	  bool& modification,
 	  const std::string& srcVertex,
 	  const std::string& destVertex,
 	  Distance_t srcToDestDist) const noexcept
@@ -97,6 +103,7 @@ namespace graph::bellman_ford
 
 	if (!res.second)
 	  res.first->second = srcVertex;
+	modification = true;
       }
   }
 
