@@ -234,14 +234,10 @@ namespace graph::dijkstra
 	    << _graph.edgeNb;
 	throw std::invalid_argument(oss.str());
       }
-    for (const auto& pair : _graph.vertices)
+    for (const auto& [srcVertex, neighboringVertices] : _graph.vertices)
       {
-	const NeighboringVertices_t& neighboringVertices = pair.second;
-	
-	for (const auto& pair2 : neighboringVertices)
+	for (const auto& [destVertex, srcToDestDist] : neighboringVertices)
 	  {
-	    const VertexName_t& destVertex = pair2.first;
-	    
 	    if (_graph.vertices.find(destVertex) == _graph.vertices.cend()
 		&& destVertex != _graph.endVertexName)
 	      {

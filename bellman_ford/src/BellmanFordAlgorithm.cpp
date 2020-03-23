@@ -26,12 +26,8 @@ namespace graph::bellman_ford
     std::unordered_map<VertexName_t, VertexName_t> predecessorMap;
 
     bestDistMap.reserve(_graph->vertexNb);
-    for (const auto& pair : _graph->vertices)
-      {
-	const VertexName_t& srcVertex = pair.first;
-	
-	bestDistMap.try_emplace(srcVertex, INFINITE_VALUE);
-      }
+    for (const auto& [srcVertex, neighboringVertices] : _graph->vertices)
+      bestDistMap.try_emplace(srcVertex, INFINITE_VALUE);
     bestDistMap.try_emplace(_graph->endVertexName, INFINITE_VALUE);
     bestDistMap.at(_graph->startVertexName) = 0;
 
@@ -40,34 +36,21 @@ namespace graph::bellman_ford
     for (std::uint32_t i = 1; i <= _graph->vertexNb - 1 && modification; ++i)
       {
 	modification = false;
-	for (const auto& pair : _graph->vertices)
+	for (const auto& [srcVertex, neighboringVertices] : _graph->vertices)
 	  {
-	    const VertexName_t& srcVertex = pair.first;
-	    const NeighboringVertices_t& neighboringVertices = pair.second;
-	    
-	    for (const auto& pair2 : neighboringVertices)
-	      {
-		const VertexName_t& destVertex = pair2.first;
-		Distance_t srcToDestDist = pair2.second;
-
-		relax(bestDistMap,
-		      predecessorMap,
-		      modification,
-		      srcVertex,
-		      destVertex,
-		      srcToDestDist);
-	      }
+	    for (const auto& [destVertex, srcToDestDist] : neighboringVertices)
+	      relax(bestDistMap,
+		    predecessorMap,
+		    modification,
+		    srcVertex,
+		    destVertex,
+		    srcToDestDist);
 	  }
       }
-    for (const auto& pair : _graph->vertices)
+    for (const auto& [srcVertex, neighboringVertices] : _graph->vertices)
       {
-	const VertexName_t& srcVertex = pair.first;
-	const NeighboringVertices_t& neighboringVertices = pair.second;
-	
-	for (const auto& pair2 : neighboringVertices)
+	for (const auto& [destVertex, srcToDestDist] : neighboringVertices)
 	  {
-	    const VertexName_t& destVertex = pair2.first;
-	    Distance_t srcToDestDist = pair2.second;
 	    Distance_t srcVertexDist = bestDistMap.at(srcVertex);
 	    Distance_t destVertexDist = bestDistMap.at(destVertex);
 
@@ -114,11 +97,8 @@ namespace graph::bellman_ford
     os << "End vertex : " << _graph->endVertexName << std::endl;
     os << "Vertex number : " << _graph->vertexNb << std::endl;
     os << "Edge number : " << _graph->edgeNb << std::endl;
-    for (const auto& pair : _graph->vertices)
+    for (const auto& [srcVertex, neighboringVertices] : _graph->vertices)
       {
-	const VertexName_t& srcVertex = pair.first;
-	const NeighboringVertices_t& neighboringVertices = pair.second;
-	
         os << srcVertex << " neighbors : ";
 
 	auto start = neighboringVertices.cbegin();
@@ -151,13 +131,8 @@ namespace graph::bellman_ford
 	os << "Vertex   Best distance from start vertex"
 	   << " until destination vertex"
 	   << std::endl;
-	for (const auto& pair : _result.bestDistMap)
-	  {
-	    const VertexName_t& destVertex = pair.first;
-	    Distance_t destVertexDist = pair.second;
-	    
-	    os << destVertex << "\t\t\t\t" << destVertexDist << std::endl;
-	  }
+	for (const auto& [destVertex, destVertexDist] : _result.bestDistMap)
+	  os << destVertex << "\t\t\t\t" << destVertexDist << std::endl;
 	os << std::endl
 	   << "Best distance from start to end vertex : "
 	   << _result.bestDistMap.at(_graph->endVertexName)

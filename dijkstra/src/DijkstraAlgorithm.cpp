@@ -55,11 +55,9 @@ namespace graph::dijkstra
 	vdwtQueue.pop();
 	if (!visitedVertexSet.emplace(vdwt.vertexName).second)
 	  continue;
-	for (const auto& pair : _graph->vertices.at(vdwt.vertexName))
+	for (const auto& [destVertex, srcToDestDist] :
+	       _graph->vertices.at(vdwt.vertexName))
 	  {
-	    const VertexName_t& destVertex = pair.first;
-	    Distance_t srcToDestDist = pair.second;
-	    
 	    if (visitedVertexSet.find(destVertex) == visitedVertexSet.cend())
 	      {
 		VertexDistanceWithTrace newVdwt;
@@ -79,11 +77,8 @@ namespace graph::dijkstra
     os << "Start vertex : " << _graph->startVertexName << std::endl;
     os << "End vertex : " << _graph->endVertexName << std::endl;
     os << "Edge number : " << _graph->edgeNb << std::endl;
-    for (const auto& pair : _graph->vertices)
+    for (const auto& [srcVertex, neighboringVertices] : _graph->vertices)
       {
-	const VertexName_t& srcVertex = pair.first;
-	const NeighboringVertices_t& neighboringVertices = pair.second;
-	
 	os << srcVertex << " neighbors : ";
 
 	auto start = neighboringVertices.cbegin();
