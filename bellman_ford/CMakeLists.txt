@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 set(BELLMAN_FORD_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BellmanFordFileParser.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/BellmanFordAlgorithm.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/BellmanFordAlgorithm.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/BellmanFordAlgoReport.cpp)
 
 add_library(bellman_ford_lib ${BELLMAN_FORD_SRCS})
 

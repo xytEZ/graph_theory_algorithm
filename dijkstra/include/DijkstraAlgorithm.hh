@@ -3,6 +3,7 @@
 
 # include "AbstractGraph.hh"
 # include "DijkstraUtils.hh"
+# include "DijkstraAlgoReport.hh"
 
 namespace graph::dijkstra
 {
@@ -17,6 +18,7 @@ namespace graph::dijkstra
     
     const Graph *_graph;
     Result _result;
+    DijkstraAlgoReport _report;
     
   public :
     DijkstraAlgorithm();
@@ -27,8 +29,7 @@ namespace graph::dijkstra
     DijkstraAlgorithm& operator=(DijkstraAlgorithm&&) = delete;
     void init(const DijkstraFileParser&) override;
     void execute() override;
-    std::ostream& description(std::ostream&) const noexcept override;
-    std::ostream& result(std::ostream&) const noexcept override;
+    const DijkstraAlgoReport& getReport() const noexcept override;
   };
 }
 

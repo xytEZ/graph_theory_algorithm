@@ -6,6 +6,7 @@
 
 # include "AbstractGraph.hh"
 # include "BellmanFordUtils.hh"
+# include "BellmanFordAlgoReport.hh"
 
 namespace graph::bellman_ford
 {
@@ -16,6 +17,7 @@ namespace graph::bellman_ford
     
     const Graph *_graph;
     Result _result;
+    BellmanFordAlgoReport _report;
 
   public :
     BellmanFordAlgorithm();
@@ -26,8 +28,7 @@ namespace graph::bellman_ford
     BellmanFordAlgorithm& operator=(BellmanFordAlgorithm&&) = delete;
     void init(const BellmanFordFileParser&) override;
     void execute() override;
-    std::ostream& description(std::ostream&) const noexcept override;
-    std::ostream& result(std::ostream&) const noexcept override;
+    const BellmanFordAlgoReport& getReport() const noexcept override;
 
   private :
     void relax(std::unordered_map<VertexName_t, Distance_t>&,

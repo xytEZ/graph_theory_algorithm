@@ -17,6 +17,14 @@ namespace graph
     class BellmanFordFileParser;
   }
   
+  class IGraphAlgoReport
+  {
+  public :
+    virtual ~IGraphAlgoReport() = default;
+    virtual std::ostream& description(std::ostream&) const noexcept = 0;
+    virtual std::ostream& result(std::ostream&) const noexcept = 0; 
+  };
+  
   class AGraphAlgorithm
   {
   public :
@@ -24,8 +32,7 @@ namespace graph
     virtual void init(const dijkstra::DijkstraFileParser&);
     virtual void init(const bellman_ford::BellmanFordFileParser&);
     virtual void execute() = 0;
-    virtual std::ostream& description(std::ostream&) const noexcept = 0;
-    virtual std::ostream& result(std::ostream&) const noexcept = 0;
+    virtual const IGraphAlgoReport& getReport() const noexcept = 0;
   };
   
   class AGraphFileParser
