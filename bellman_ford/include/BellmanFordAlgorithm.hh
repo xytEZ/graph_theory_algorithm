@@ -31,12 +31,8 @@ namespace graph::bellman_ford
     const BellmanFordAlgoReport& getReport() const noexcept override;
 
   private :
-    void relax(std::unordered_map<VertexName_t, Distance_t>&,
-	       std::unordered_map<VertexName_t, VertexName_t>&,
-	       bool&,
-	       const std::string&,
-	       const std::string&,
-	       Distance_t) const noexcept;
+    void relax(bool&, const std::string&, const std::string&, Distance_t)
+      noexcept;
   };
 }
 

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <utility>
 
 #include "BellmanFordFileParser.hh"
 
@@ -22,14 +21,11 @@ namespace graph::bellman_ford
 
   void BellmanFordAlgorithm::execute()
   {
-    std::unordered_map<VertexName_t, Distance_t> bestDistMap;
-    std::unordered_map<VertexName_t, VertexName_t> predecessorMap;
-
-    bestDistMap.reserve(_graph->vertexNb);
+    _result.bestDistMap.reserve(_graph->vertexNb);
     for (const auto& [srcVertex, neighboringVertices] : _graph->vertices)
-      bestDistMap.try_emplace(srcVertex, INFINITE_VALUE);
-    bestDistMap.try_emplace(_graph->endVertexName, INFINITE_VALUE);
-    bestDistMap.at(_graph->startVertexName) = 0;
+      _result.bestDistMap.try_emplace(srcVertex, INFINITE_VALUE);
+    _result.bestDistMap.try_emplace(_graph->endVertexName, INFINITE_VALUE);
+    _result.bestDistMap.at(_graph->startVertexName) = 0;
 
     bool modification = true;
     
@@ -39,20 +35,15 @@ namespace graph::bellman_ford
 	for (const auto& [srcVertex, neighboringVertices] : _graph->vertices)
 	  {
 	    for (const auto& [destVertex, srcToDestDist] : neighboringVertices)
-	      relax(bestDistMap,
-		    predecessorMap,
-		    modification,
-		    srcVertex,
-		    destVertex,
-		    srcToDestDist);
+	      relax(modification, srcVertex, destVertex, srcToDestDist);
 	  }
       }
     for (const auto& [srcVertex, neighboringVertices] : _graph->vertices)
       {
 	for (const auto& [destVertex, srcToDestDist] : neighboringVertices)
 	  {
-	    Distance_t srcVertexDist = bestDistMap.at(srcVertex);
-	    Distance_t destVertexDist = bestDistMap.at(destVertex);
+	    Distance_t srcVertexDist = _result.bestDistMap.at(srcVertex);
+	    Distance_t destVertexDist = _result.bestDistMap.at(destVertex);
 
 	    if (srcVertexDist + srcToDestDist < destVertexDist)
 	      {
@@ -62,27 +53,22 @@ namespace graph::bellman_ford
 	  }
       }
     _result.pathFound = true;
-    _result.bestDistMap = std::move(bestDistMap);
-    _result.predecessorMap = std::move(predecessorMap);
   }
   
-  void BellmanFordAlgorithm
-  ::relax(std::unordered_map<VertexName_t, Distance_t>& bestDistMap,
-	  std::unordered_map<VertexName_t, VertexName_t>& predecessorMap,
-	  bool& modification,
-	  const std::string& srcVertex,
-	  const std::string& destVertex,
-	  Distance_t srcToDestDist) const noexcept
+  void BellmanFordAlgorithm::relax(bool& modification,
+				   const std::string& srcVertex,
+				   const std::string& destVertex,
+				   Distance_t srcToDestDist) noexcept
   {
-    Distance_t srcVertexDist = bestDistMap.at(srcVertex);
-    Distance_t destVertexDist = bestDistMap.at(destVertex);
+    Distance_t srcVertexDist = _result.bestDistMap.at(srcVertex);
+    Distance_t destVertexDist = _result.bestDistMap.at(destVertex);
 
     if (srcVertexDist != INFINITE_VALUE
 	&& srcVertexDist + srcToDestDist < destVertexDist)
       {
-	bestDistMap.at(destVertex) = srcVertexDist + srcToDestDist;
+	_result.bestDistMap.at(destVertex) = srcVertexDist + srcToDestDist;
 	
-	auto res = predecessorMap.try_emplace(destVertex, srcVertex);
+	auto res = _result.predecessorMap.try_emplace(destVertex, srcVertex);
 
 	if (!res.second)
 	  res.first->second = srcVertex;
