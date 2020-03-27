@@ -1,6 +1,6 @@
 #include <iostream>
 #include <utility>
-#include <queue>
+#include <stack>
 
 #include "DijkstraAlgoReport.hh"
 
@@ -44,31 +44,41 @@ namespace graph::dijkstra
       os << "Path not found" << std::endl;
     else
       {
-	os << "Best distance : "
-	   << _result.totalDistance
-	   << std::endl;
-	os << "Best path : ";
+	os << "Best distance : " 
+	   << _result.bestDistMap.at(_graph->endVertexName)
+	   << std::endl
+	   << "Best path : ";
+
+	std::stack<VertexName_t> bestPathStack;
+        VertexName_t predVertexName = _graph->endVertexName;
+        std::unordered_map<VertexName_t, VertexName_t>::const_iterator it;
+
+        while ((it = _result.predecessorMap.find(predVertexName))
+               != _result.predecessorMap.cend())
+          {
+            bestPathStack.push(predVertexName);
+            predVertexName = it->second;
+          }
+        bestPathStack.push(predVertexName);
 
 	std::string prevVertexName;
-	std::queue<VertexName_t> cpyVisitedVertexQueue =
-	  _result.visitedVertexQueue;
+	
+	while (!bestPathStack.empty())
+          {
+            VertexName_t vertexName = std::move(bestPathStack.top());
 
-	while (!cpyVisitedVertexQueue.empty())
-	  {
-	    VertexName_t vertexName = std::move(cpyVisitedVertexQueue.front());
-
-	    cpyVisitedVertexQueue.pop();
-	    os << vertexName;
-	    if (prevVertexName.empty())
-	      os << " (0)";
-	    else
-	      os << " ("
-		 << _graph->vertices.at(prevVertexName).at(vertexName)
-		 << ")";
-	    prevVertexName = std::move(vertexName);
-	    if (!cpyVisitedVertexQueue.empty())
-	      os << " -> ";
-	  }
+            bestPathStack.pop();
+            os << vertexName;
+            if (prevVertexName.empty())
+              os << " (0)";
+            else
+              os << " ("
+                 << _graph->vertices.at(prevVertexName).at(vertexName)
+                 << ")";
+            prevVertexName = std::move(vertexName);
+            if (!bestPathStack.empty())
+              os << " -> ";
+          }
 	os << std::endl;
       }
     return os;

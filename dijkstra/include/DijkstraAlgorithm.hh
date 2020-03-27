@@ -1,6 +1,8 @@
 #ifndef DIJKSTRA_ALGORITHM_HH_
 # define DIJKSTRA_ALGORITHM_HH_
 
+# include <limits>
+
 # include "AbstractGraph.hh"
 # include "DijkstraUtils.hh"
 # include "DijkstraAlgoReport.hh"
@@ -9,12 +11,15 @@ namespace graph::dijkstra
 {
   class DijkstraAlgorithm : public AGraphAlgorithm
   {
-    class VertexDistanceWithTraceGreater
+    class VertexCumulDistGreater
     {
     public :
-      bool operator()(const VertexDistanceWithTrace&,
-		      const VertexDistanceWithTrace&) const noexcept;
+      bool operator()(const VertexCumulDist&, const VertexCumulDist&)
+	const noexcept;
     };
+
+    static constexpr Distance_t INFINITE_VALUE =
+      std::numeric_limits<Distance_t>::max();
     
     const Graph *_graph;
     Result _result;
@@ -30,6 +35,10 @@ namespace graph::dijkstra
     void init(const DijkstraFileParser&) override;
     void execute() override;
     const DijkstraAlgoReport& getReport() const noexcept override;
+
+  private :
+    bool relax(const VertexCumulDist&, const std::string&, Distance_t)
+      noexcept;
   };
 }
 

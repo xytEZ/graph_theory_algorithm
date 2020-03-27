@@ -58,7 +58,8 @@ namespace graph::bellman_ford
 	os << std::endl
 	   << "Best distance from start to end vertex : "
 	   << _result.bestDistMap.at(_graph->endVertexName)
-	   << std::endl;
+	   << std::endl
+	   << "Best path : ";
 
 	std::stack<VertexName_t> bestPathStack;
 	VertexName_t predVertexName = _graph->endVertexName;
@@ -74,7 +75,6 @@ namespace graph::bellman_ford
 
 	std::string prevVertexName;
 	
-	os << "Best path : ";
 	while (!bestPathStack.empty())
 	  {
 	    VertexName_t vertexName = std::move(bestPathStack.top());

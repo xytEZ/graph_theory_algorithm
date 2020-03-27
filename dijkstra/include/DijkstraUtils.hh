@@ -27,14 +27,14 @@ namespace graph::dijkstra
   {
     bool pathFound;
     Distance_t totalDistance;
-    std::queue<VertexName_t> visitedVertexQueue;
+    std::unordered_map<VertexName_t, Distance_t> bestDistMap;
+    std::unordered_map<VertexName_t, VertexName_t> predecessorMap;
   };
   
-  struct VertexDistanceWithTrace
+  struct VertexCumulDist
   {
     VertexName_t vertexName;
     Distance_t cumulativeDist;
-    std::queue<VertexName_t> visitedVertexQueue;
   };
   
 }

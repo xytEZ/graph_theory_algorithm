@@ -1,5 +1,3 @@
-#include <utility>
-#include <unordered_set>
 #include <vector>
 
 #include "DijkstraFileParser.hh"
@@ -8,17 +6,18 @@
 
 namespace graph::dijkstra
 {
-  bool DijkstraAlgorithm::VertexDistanceWithTraceGreater
-  ::VertexDistanceWithTraceGreater::operator()
-    (const VertexDistanceWithTrace& lhs, const VertexDistanceWithTrace& rhs)
+  bool DijkstraAlgorithm::VertexCumulDistGreater::VertexCumulDistGreater
+  ::operator()(const VertexCumulDist& lhs, const VertexCumulDist& rhs)
     const noexcept
   {
     return lhs.cumulativeDist > rhs.cumulativeDist;
   }
+
+  constexpr Distance_t DijkstraAlgorithm::INFINITE_VALUE;
   
   DijkstraAlgorithm::DijkstraAlgorithm() :
     _graph(nullptr),
-    _result { false, 0, std::queue<VertexName_t> { } },
+    _result { false, 0, { }, { }},
     _report(_graph, _result)
   { }
   
@@ -29,46 +28,62 @@ namespace graph::dijkstra
 
   void DijkstraAlgorithm::execute()
   {
-    using PrQueue_t = std::priority_queue<VertexDistanceWithTrace,
-					  std::vector<VertexDistanceWithTrace>,
-					  VertexDistanceWithTraceGreater>;
+    _result.bestDistMap.reserve(_graph->vertices.size());
+    for (const auto& [srcVertex, neighboringVertices] : _graph->vertices)
+      _result.bestDistMap.try_emplace(srcVertex, INFINITE_VALUE);
+    _result.bestDistMap.try_emplace(_graph->endVertexName, INFINITE_VALUE);
+    _result.bestDistMap.at(_graph->startVertexName) = 0;
+    
+    std::priority_queue<VertexCumulDist,
+			std::vector<VertexCumulDist>,
+			VertexCumulDistGreater> vertexCumulDistQueue;
 
-    std::unordered_set<VertexName_t> visitedVertexSet;
-    PrQueue_t vdwtQueue;
-
-    visitedVertexSet.reserve(_graph->vertices.size());
-    vdwtQueue
-      .push({ _graph->startVertexName, 0, std::queue<VertexName_t> { } }); 
-    while (!vdwtQueue.empty())
+    vertexCumulDistQueue.push({
+			       _graph->startVertexName,
+			       _result.bestDistMap
+			       .at(_graph->startVertexName)
+                             });
+    while (!vertexCumulDistQueue.empty())
       {
-	VertexDistanceWithTrace vdwt = std::move(vdwtQueue.top());
+	VertexCumulDist vertexCumulDist =
+	  std::move(vertexCumulDistQueue.top());
 
-	if (vdwt.vertexName == _graph->endVertexName)
+	vertexCumulDistQueue.pop();
+	if (vertexCumulDist.vertexName == _graph->endVertexName)
 	  {
 	    _result.pathFound = true;
-	    _result.totalDistance = vdwt.cumulativeDist;
-	    _result.visitedVertexQueue = std::move(vdwt.visitedVertexQueue);
-	    _result.visitedVertexQueue.push(vdwt.vertexName);
 	    break;
 	  }
-	vdwtQueue.pop();
-	if (!visitedVertexSet.emplace(vdwt.vertexName).second)
-	  continue;
 	for (const auto& [destVertex, srcToDestDist] :
-	       _graph->vertices.at(vdwt.vertexName))
+	       _graph->vertices.at(vertexCumulDist.vertexName))
 	  {
-	    if (visitedVertexSet.find(destVertex) == visitedVertexSet.cend())
-	      {
-		VertexDistanceWithTrace newVdwt;
-
-		newVdwt.vertexName = destVertex;
-		newVdwt.cumulativeDist = vdwt.cumulativeDist + srcToDestDist;
-		newVdwt.visitedVertexQueue = vdwt.visitedVertexQueue;
-		newVdwt.visitedVertexQueue.push(vdwt.vertexName);
-		vdwtQueue.push(std::move(newVdwt));
-	      }
-	  }    
+	    if (relax(vertexCumulDist, destVertex, srcToDestDist))
+	      vertexCumulDistQueue.push({
+					 destVertex,
+					 _result.bestDistMap.at(destVertex)
+		                       });
+	  }
       }
+  }
+
+  bool DijkstraAlgorithm::relax(const VertexCumulDist& vertexCumulDist,
+				const std::string& destVertex,
+				Distance_t srcToDestDist) noexcept
+  {
+    if (vertexCumulDist.cumulativeDist + srcToDestDist
+	> _result.bestDistMap.at(destVertex))
+      return false;
+    
+    _result.bestDistMap.at(destVertex) = vertexCumulDist.cumulativeDist
+      + srcToDestDist;
+	
+    auto res = _result
+      .predecessorMap
+      .try_emplace(destVertex, vertexCumulDist.vertexName);
+	
+    if (!res.second)
+      res.first->second = vertexCumulDist.vertexName;
+    return true;
   }
 
   const DijkstraAlgoReport& DijkstraAlgorithm::getReport() const noexcept

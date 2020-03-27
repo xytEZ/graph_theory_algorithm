@@ -1,7 +1,6 @@
 #ifndef BELLMAN_FORD_ALGORITHM_
 # define BELLMAN_FORD_ALGORITHM_
 
-# include <unordered_map>
 # include <limits>
 
 # include "AbstractGraph.hh"
