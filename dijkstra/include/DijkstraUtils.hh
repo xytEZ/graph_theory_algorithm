@@ -29,13 +29,6 @@ namespace graph::dijkstra
     std::unordered_map<VertexName_t, Distance_t> bestDistMap;
     std::unordered_map<VertexName_t, VertexName_t> predecessorMap;
   };
-  
-  struct VertexCumulDist
-  {
-    VertexName_t vertexName;
-    Distance_t cumulativeDist;
-  };
-  
 }
 
 #endif

@@ -13,9 +13,13 @@ namespace graph::dijkstra
   {
     class VertexCumulDistGreater
     {
+      const std::unordered_map<VertexName_t, Distance_t>& _bestDistMap;
+      
     public :
-      bool operator()(const VertexCumulDist&, const VertexCumulDist&)
-	const noexcept;
+      VertexCumulDistGreater
+      (const std::unordered_map<VertexName_t, Distance_t>&);
+      
+      bool operator()(const VertexName_t&, const VertexName_t&) const noexcept;
     };
 
     static constexpr Distance_t INFINITE_VALUE =
@@ -37,8 +41,7 @@ namespace graph::dijkstra
     const DijkstraAlgoReport& getReport() const noexcept override;
 
   private :
-    bool relax(const VertexCumulDist&, const std::string&, Distance_t)
-      noexcept;
+    bool relax(const VertexName_t&, const VertexName_t&, Distance_t) noexcept;
   };
 }
 

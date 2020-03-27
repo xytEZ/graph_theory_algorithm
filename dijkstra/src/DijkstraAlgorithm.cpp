@@ -6,11 +6,16 @@
 
 namespace graph::dijkstra
 {
+  DijkstraAlgorithm::VertexCumulDistGreater::VertexCumulDistGreater
+  (const std::unordered_map<VertexName_t, Distance_t>& bestDistMap) :
+    _bestDistMap(bestDistMap)
+  { }
+  
   bool DijkstraAlgorithm::VertexCumulDistGreater::VertexCumulDistGreater
-  ::operator()(const VertexCumulDist& lhs, const VertexCumulDist& rhs)
+  ::operator()(const VertexName_t& lhs, const VertexName_t& rhs)
     const noexcept
   {
-    return lhs.cumulativeDist > rhs.cumulativeDist;
+    return _bestDistMap.at(lhs) > _bestDistMap.at(rhs);
   }
 
   constexpr Distance_t DijkstraAlgorithm::INFINITE_VALUE;
@@ -28,61 +33,56 @@ namespace graph::dijkstra
 
   void DijkstraAlgorithm::execute()
   {
+    using VertexQueue_t = 
+      std::priority_queue<VertexName_t,
+			  std::vector<VertexName_t>,
+			  VertexCumulDistGreater>;
+    
     _result.bestDistMap.reserve(_graph->vertices.size());
     for (const auto& [srcVertex, neighboringVertices] : _graph->vertices)
       _result.bestDistMap.try_emplace(srcVertex, INFINITE_VALUE);
     _result.bestDistMap.try_emplace(_graph->endVertexName, INFINITE_VALUE);
     _result.bestDistMap.at(_graph->startVertexName) = 0;
-    
-    std::priority_queue<VertexCumulDist,
-			std::vector<VertexCumulDist>,
-			VertexCumulDistGreater> vertexCumulDistQueue;
 
-    vertexCumulDistQueue.push({
-			       _graph->startVertexName,
-			       _result.bestDistMap
-			       .at(_graph->startVertexName)
-                             });
-    while (!vertexCumulDistQueue.empty())
+    VertexQueue_t vertexQueue(_result.bestDistMap);
+
+    vertexQueue.push(_graph->startVertexName);
+    while (!vertexQueue.empty())
       {
-	VertexCumulDist vertexCumulDist =
-	  std::move(vertexCumulDistQueue.top());
+	VertexName_t vertexName = std::move(vertexQueue.top());
 
-	vertexCumulDistQueue.pop();
-	if (vertexCumulDist.vertexName == _graph->endVertexName)
+	vertexQueue.pop();
+	if (vertexName == _graph->endVertexName)
 	  {
 	    _result.pathFound = true;
 	    break;
 	  }
 	for (const auto& [destVertex, srcToDestDist] :
-	       _graph->vertices.at(vertexCumulDist.vertexName))
+	       _graph->vertices.at(vertexName))
 	  {
-	    if (relax(vertexCumulDist, destVertex, srcToDestDist))
-	      vertexCumulDistQueue.push({
-					 destVertex,
-					 _result.bestDistMap.at(destVertex)
-		                       });
+	    if (relax(vertexName, destVertex, srcToDestDist))
+	      vertexQueue.push(destVertex);
 	  }
       }
   }
 
-  bool DijkstraAlgorithm::relax(const VertexCumulDist& vertexCumulDist,
-				const std::string& destVertex,
+  bool DijkstraAlgorithm::relax(const VertexName_t& srcVertex,
+				const VertexName_t& destVertex,
 				Distance_t srcToDestDist) noexcept
   {
-    if (vertexCumulDist.cumulativeDist + srcToDestDist
-	> _result.bestDistMap.at(destVertex))
+    Distance_t vertexCumulDist = _result.bestDistMap.at(srcVertex);
+
+    if (vertexCumulDist + srcToDestDist > _result.bestDistMap.at(destVertex))
       return false;
     
-    _result.bestDistMap.at(destVertex) = vertexCumulDist.cumulativeDist
-      + srcToDestDist;
+    _result.bestDistMap.at(destVertex) = vertexCumulDist + srcToDestDist;
 	
     auto res = _result
       .predecessorMap
-      .try_emplace(destVertex, vertexCumulDist.vertexName);
+      .try_emplace(destVertex, srcVertex);
 	
     if (!res.second)
-      res.first->second = vertexCumulDist.vertexName;
+      res.first->second = srcVertex;
     return true;
   }
 
