@@ -17,7 +17,7 @@ namespace graph::dijkstra
   
   DijkstraAlgorithm::DijkstraAlgorithm() :
     _graph(nullptr),
-    _result { false, 0, { }, { }},
+    _result { false, { }, { } },
     _report(_graph, _result)
   { }
   

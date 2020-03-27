@@ -26,7 +26,6 @@ namespace graph::dijkstra
   struct Result
   {
     bool pathFound;
-    Distance_t totalDistance;
     std::unordered_map<VertexName_t, Distance_t> bestDistMap;
     std::unordered_map<VertexName_t, VertexName_t> predecessorMap;
   };
