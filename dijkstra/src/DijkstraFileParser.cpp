@@ -183,14 +183,11 @@ namespace graph::dijkstra
 		    << tokenVect.at(1);
 		throw std::invalid_argument(oss.str());
 	      }
-
-	    auto it = _graph.vertices.find(tokenVect.at(1));
-	    
-	    if (it != _graph.vertices.cend())
+	    if (auto it = _graph.vertices.find(tokenVect.at(1));
+		it != _graph.vertices.cend())
 	      {
-		auto it2 = it->second.find(tokenVect.at(0));
-		
-		if (it2 != it->second.cend())
+		if (auto it2 = it->second.find(tokenVect.at(0));
+		    it2 != it->second.cend())
 		  {
 		    if (it2->second != distance)
 		      {

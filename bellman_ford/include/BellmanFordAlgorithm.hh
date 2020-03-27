@@ -30,7 +30,7 @@ namespace graph::bellman_ford
     const BellmanFordAlgoReport& getReport() const noexcept override;
 
   private :
-    void relax(bool&, const std::string&, const std::string&, Distance_t)
+    void relax(bool&, const VertexName_t&, const VertexName_t&, Distance_t)
       noexcept;
   };
 }

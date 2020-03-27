@@ -33,18 +33,16 @@ namespace graph::dijkstra
 
   void DijkstraAlgorithm::execute()
   {
-    using VertexQueue_t = 
-      std::priority_queue<VertexName_t,
-			  std::vector<VertexName_t>,
-			  VertexCumulDistGreater>;
-    
     _result.bestDistMap.reserve(_graph->vertices.size());
     for (const auto& [srcVertex, neighboringVertices] : _graph->vertices)
       _result.bestDistMap.try_emplace(srcVertex, INFINITE_VALUE);
     _result.bestDistMap.try_emplace(_graph->endVertexName, INFINITE_VALUE);
     _result.bestDistMap.at(_graph->startVertexName) = 0;
-
-    VertexQueue_t vertexQueue(_result.bestDistMap);
+    
+    std::priority_queue<VertexName_t,
+			std::vector<VertexName_t>,
+			VertexCumulDistGreater>
+      vertexQueue(_result.bestDistMap);
 
     vertexQueue.push(_graph->startVertexName);
     while (!vertexQueue.empty())
@@ -71,17 +69,12 @@ namespace graph::dijkstra
 				Distance_t srcToDestDist) noexcept
   {
     Distance_t vertexCumulDist = _result.bestDistMap.at(srcVertex);
-
+    
     if (vertexCumulDist + srcToDestDist > _result.bestDistMap.at(destVertex))
       return false;
-    
     _result.bestDistMap.at(destVertex) = vertexCumulDist + srcToDestDist;
-	
-    auto res = _result
-      .predecessorMap
-      .try_emplace(destVertex, srcVertex);
-	
-    if (!res.second)
+    if (auto res = _result.predecessorMap.try_emplace(destVertex, srcVertex);
+	!res.second)
       res.first->second = srcVertex;
     return true;
   }

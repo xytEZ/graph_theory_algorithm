@@ -56,8 +56,8 @@ namespace graph::bellman_ford
   }
   
   void BellmanFordAlgorithm::relax(bool& modification,
-				   const std::string& srcVertex,
-				   const std::string& destVertex,
+				   const VertexName_t& srcVertex,
+				   const VertexName_t& destVertex,
 				   Distance_t srcToDestDist) noexcept
   {
     Distance_t srcVertexDist = _result.bestDistMap.at(srcVertex);
@@ -67,10 +67,9 @@ namespace graph::bellman_ford
 	&& srcVertexDist + srcToDestDist < destVertexDist)
       {
 	_result.bestDistMap.at(destVertex) = srcVertexDist + srcToDestDist;
-	
-	auto res = _result.predecessorMap.try_emplace(destVertex, srcVertex);
-
-	if (!res.second)
+	if (auto res = _result.predecessorMap.try_emplace(destVertex,
+							  srcVertex);
+	    !res.second)
 	  res.first->second = srcVertex;
 	modification = true;
       }
