@@ -1,0 +1,348 @@
+#include <sstream>
+#include <string_view>
+#include <cstring>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include "AStarFileParser.hh"
+
+namespace graph::astar
+{
+  AStarFileParser::AStarFileParser(const std::string& fileName) :
+    AGraphFileParser(fileName),
+    _graph { "", "", 0, { }, { } }
+  { }
+
+  void AStarFileParser::onParse(std::ifstream& ifs)
+  {
+    parseStartEndVertices(ifs);
+    parseEdgeNumber(ifs);
+    parseEdges(ifs);
+    parseHeuristics(ifs);
+    checkAllHeuristicsAreDefined();
+  }
+
+  void AStarFileParser::accept(AGraphAlgorithm& graphAlgo) const noexcept
+  {
+    graphAlgo.init(*this);
+  }
+  
+  void AStarFileParser::parseStartEndVertices(std::ifstream& ifs)
+  {
+    std::string line;
+
+    std::getline(ifs, line, '\n');
+    if (ifs.fail())
+      throw std::runtime_error("Getline error");
+
+    std::vector<std::string> tokenVect;
+
+    boost::split(tokenVect, line, boost::is_any_of(" \t"));
+    if (tokenVect.size() < 2)
+      {
+       	std::ostringstream oss;
+
+        oss << "Missing arguments about start and end vertices line";
+        throw std::invalid_argument(oss.str());
+      }
+    else if (tokenVect.size() > 2)
+      {
+       	std::ostringstream oss;
+
+        oss << "Too much arguments about start and end vertices line";
+        throw std::invalid_argument(oss.str());
+      }
+    _graph.startVertexName = tokenVect.at(0);
+    _graph.endVertexName = tokenVect.at(1);
+    if (_graph.startVertexName == _graph.endVertexName)
+      {
+        std::ostringstream oss;
+
+        oss << "Start and end vertices must be different";
+        throw std::invalid_argument(oss.str());
+      }
+  }
+
+  void AStarFileParser::parseEdgeNumber(std::ifstream& ifs)
+  {
+    std::string line;
+
+    std::getline(ifs, line, '\n');
+    if (ifs.fail())
+      throw std::runtime_error("Getline error");
+
+    std::vector<std::string> tokenVect;
+
+    boost::split(tokenVect, line, boost::is_any_of(" \t"));
+    if (tokenVect.size() < 1)
+      {
+        std::ostringstream oss;
+
+	oss << "Missing argument about edge number line";
+        throw std::invalid_argument(oss.str());
+      }
+    else if (tokenVect.size() > 1)
+      {
+        std::ostringstream oss;
+
+        oss << "Too much arguments about edge number line";
+        throw std::invalid_argument(oss.str());
+      }
+    try
+      {
+        const std::string& edgeNbStr = tokenVect.at(0);
+
+	_graph.edgeNb = boost::lexical_cast<EdgeNumber_t>(edgeNbStr);
+        if (edgeNbStr.at(0) == '-')
+          {
+            std::ostringstream oss;
+
+            oss << "Edge number must be a positive integer";
+            throw std::invalid_argument(oss.str());
+          }
+	else if (_graph.edgeNb == 0)
+          {
+            std::ostringstream oss;
+
+            oss << "Edge number cannot be equal to 0";
+            throw std::invalid_argument(oss.str());
+          }
+      }
+    catch (const boost::bad_lexical_cast&)
+      {
+        std::ostringstream oss;
+
+        oss << "Bad type. Edge number must be a integer";
+        throw std::invalid_argument(oss.str());
+      }
+  }
+  
+  void AStarFileParser::parseEdges(std::ifstream& ifs)
+  {
+    std::string line;
+    std::uint32_t edgeCount = 0;
+    std::uint32_t i = 0;
+
+    while (i < _graph.edgeNb && std::getline(ifs, line, '\n'))
+      {
+        if (ifs.fail())
+          throw std::runtime_error("Getline error");
+
+        std::vector<std::string> tokenVect;
+
+        boost::split(tokenVect, line, boost::is_any_of(" \t"));
+        if (tokenVect.size() < 3)
+          {
+            std::ostringstream oss;
+
+            oss << "Missing arguments about "
+                << "vertex, neighbor vertex and distance line";
+            throw std::invalid_argument(oss.str());
+          }
+        else if (tokenVect.size() > 3)
+          {
+            std::ostringstream oss;
+
+            oss << "Too much arguments about "
+                << "vertex, neighbor vertex and distance line";
+            throw std::invalid_argument(oss.str());
+          }
+	else if (tokenVect.at(0) == tokenVect.at(1))
+          {
+            std::ostringstream oss;
+
+	    oss << "Vertex and neighbor vertex must have different name";
+            throw std::invalid_argument(oss.str());
+          }
+	else if (tokenVect.at(0) == "h:")
+	  {
+	    std::ostringstream oss;
+
+	    oss << "Heuristics must be defined after edges";
+	    throw std::invalid_argument(oss.str());
+	  }
+	try
+          {
+            const std::string& distanceStr = tokenVect.at(2);
+            Distance_t distance = boost::lexical_cast<Distance_t>(distanceStr);
+
+            if (distanceStr.at(0) == '-')
+              {
+                std::ostringstream oss;
+
+                oss << "Distance must be a positive integer";
+                throw std::invalid_argument(oss.str());
+              }
+            else if (distance == 0)
+              {
+                std::ostringstream oss;
+
+                oss << "Distance cannot be equal to 0";
+                throw std::invalid_argument(oss.str());
+              }
+            else if (!_graph
+		     .vertices
+		     .try_emplace(tokenVect.at(0), NeighboringVertices_t { })
+		     .first->second.try_emplace(tokenVect.at(1), distance)
+		     .second)
+              {
+                std::ostringstream oss;
+		
+		oss << "Duplicate edge from "
+                    << tokenVect.at(0)
+                    << " to "
+                    << tokenVect.at(1);
+                throw std::invalid_argument(oss.str());
+              }
+            else if (auto it = _graph.vertices.find(tokenVect.at(1));
+		     it != _graph.vertices.cend())
+              {
+                if (auto it2 = it->second.find(tokenVect.at(0));
+                    it2 != it->second.cend())
+                  {
+                    if (it2->second != distance)
+                      {
+                        std::ostringstream oss;
+
+			oss << "Duplicate edge from "
+                            << tokenVect.at(0)
+                            << " to "
+                            << tokenVect.at(1)
+                            << " with different distance";
+                        throw std::invalid_argument(oss.str());
+                      }
+                  }
+                else
+                  ++edgeCount;
+	      }
+            else
+              ++edgeCount;
+          }
+        catch (const boost::bad_lexical_cast&)
+          {
+            std::ostringstream oss;
+
+            oss << "Bad type. Distance must be a integer";
+            throw std::invalid_argument(oss.str());
+          }
+	++i;
+      }
+    if (edgeCount < _graph.edgeNb)
+      {
+       	std::ostringstream oss;
+
+        oss << "Missing edges. Number of edges must be equal to "
+            << _graph.edgeNb;
+        throw std::invalid_argument(oss.str());
+      }
+    for (const auto& [srcVertex, neighboringVertices] : _graph.vertices)
+      {
+        for (const auto& [destVertex, srcToDestDist] : neighboringVertices)
+          {
+            if (_graph.vertices.find(destVertex) == _graph.vertices.cend()
+                && destVertex != _graph.endVertexName)
+              {
+                std::ostringstream oss;
+
+                oss << "Missing info edge with vertex " << destVertex;
+                throw std::invalid_argument(oss.str());
+              }
+          }
+      }
+  }
+
+  void AStarFileParser::parseHeuristics(std::ifstream& ifs)
+  {
+    std::string line;
+
+    std::getline(ifs, line, '\n');
+    if (ifs.fail())
+      throw std::runtime_error("Getline error");
+
+    std::string_view lineView(line);
+
+    if (lineView.substr(0, 2).compare("h:") != 0)
+      {
+	std::ostringstream oss;
+
+	oss << "Heuristics line must start with \"h:\" pattern";
+	throw std::invalid_argument(oss.str());
+      }
+    
+    std::vector<std::string> tokenVect;
+
+    boost::split(tokenVect, line, boost::is_any_of(" \t"));
+    for (std::uint32_t i = 1; i < tokenVect.size(); ++i)
+      {
+	std::string_view vertexHeuristicStrView(tokenVect.at(i));
+	std::size_t equalSignPos = vertexHeuristicStrView.find_first_of("=");
+
+	if (equalSignPos == std::string::npos)
+	  {
+	    std::ostringstream oss;
+	    
+	    oss << "Missing assignation sign for node heuristic";
+	    throw std::invalid_argument(oss.str());
+	  }
+
+	std::string_view vertexNameView =
+	  vertexHeuristicStrView.substr(0, equalSignPos);
+
+	if (vertexNameView == _graph.endVertexName)
+	  {
+	    std::ostringstream oss;
+
+	    oss << "Don't define heuristic for end vertex"
+		<< " It's set 0 by default because it's the destination";
+	    throw std::invalid_argument(oss.str());
+	  }
+	else if (_graph.vertices.find(std::string(vertexNameView))
+		 == _graph.vertices.cend())
+	  {
+	    std::ostringstream oss;
+
+	    oss << "Heuristic for unknown vertex \"" << vertexNameView << "\"";
+	    throw std::invalid_argument(oss.str());
+	  }
+	try
+	  {
+	    std::string_view heuristicStrView =
+	      vertexHeuristicStrView.substr(equalSignPos + 1);
+	    Distance_t heuristic =
+	      boost::lexical_cast<Distance_t>(heuristicStrView);
+
+	    if (!_graph.heuristics.try_emplace(std::string(vertexNameView),
+					       heuristic)
+		.second)
+	      {
+		std::ostringstream oss;
+
+		oss << "Duplicate heuristic for " << vertexHeuristicStrView;
+		throw std::invalid_argument(oss.str());
+	      }
+	  }
+	catch (const boost::bad_lexical_cast&)
+	  {
+	    std::ostringstream oss;
+
+	    oss << "Bad type. Heuristic must be a integer";
+	    throw std::invalid_argument(oss.str());
+	  }
+      }
+    _graph.heuristics.try_emplace(_graph.endVertexName, 0);
+  }
+
+  void AStarFileParser::checkAllHeuristicsAreDefined() const
+  {
+    for (const auto& [srcVertex, srcToDestDist] : _graph.vertices)
+      {
+	if (_graph.heuristics.find(srcVertex) == _graph.heuristics.cend())
+	  {
+	    std::ostringstream oss;
+
+	    oss << "Missing heuristic for \"" << srcVertex << "\" vertex";
+	    throw std::invalid_argument(oss.str());
+	  }
+      }
+  }
+}

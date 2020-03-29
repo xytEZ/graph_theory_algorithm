@@ -29,7 +29,7 @@ namespace line_arguments
        "this program apply a graph theory algorithm with map file")
       ("algorithm,a",
        po::value<std::string>(),
-       "graph algorithm to apply. Available with \"dijkstra\", \"bellman-ford\" arg")
+       "graph algorithm to apply. Available with \"dijkstra\", \"bellman-ford\", \"astar\" arg")
       ("file,f",
        po::value<std::string>(),
        "file containing the graph description");
@@ -61,6 +61,8 @@ namespace line_arguments
 	  _algo = graph::GraphAlgo::DIJKSTRA;
 	else if (algoName == "bellman-ford")
 	  _algo = graph::GraphAlgo::BELLMAN_FORD;
+	else if (algoName == "astar")
+	  _algo = graph::GraphAlgo::ASTAR;
 	else
 	  throw std::invalid_argument("Unknown algorithm");
       }

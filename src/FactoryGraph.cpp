@@ -4,6 +4,9 @@
 #include "bellman_ford/include/BellmanFordFileParser.hh"
 #include "bellman_ford/include/BellmanFordAlgorithm.hh"
 
+#include "astar/include/AStarFileParser.hh"
+#include "astar/include/AStarAlgorithm.hh"
+
 #include "FactoryGraph.hh"
 
 namespace graph::factory
@@ -15,6 +18,8 @@ namespace graph::factory
       return std::make_unique<dijkstra::DijkstraFileParser>(fileName);
     else if (algo == GraphAlgo::BELLMAN_FORD)
       return std::make_unique<bellman_ford::BellmanFordFileParser>(fileName);
+    else if (algo == GraphAlgo::ASTAR)
+      return std::make_unique<astar::AStarFileParser>(fileName);
     else
       return nullptr;
   }
@@ -26,6 +31,8 @@ namespace graph::factory
       return std::make_unique<dijkstra::DijkstraAlgorithm>();
     else if (algo == GraphAlgo::BELLMAN_FORD)
       return std::make_unique<bellman_ford::BellmanFordAlgorithm>();
+    else if (algo == GraphAlgo::ASTAR)
+      return std::make_unique<astar::AStarAlgorithm>();
     else
       return nullptr;
   }

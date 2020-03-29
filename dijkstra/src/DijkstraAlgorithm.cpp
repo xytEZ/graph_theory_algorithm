@@ -1,4 +1,5 @@
 #include <vector>
+#include <queue>
 
 #include "DijkstraFileParser.hh"
 
@@ -11,9 +12,8 @@ namespace graph::dijkstra
     _bestDistMap(bestDistMap)
   { }
   
-  bool DijkstraAlgorithm::VertexCumulDistGreater::VertexCumulDistGreater
-  ::operator()(const VertexName_t& lhs, const VertexName_t& rhs)
-    const noexcept
+  bool DijkstraAlgorithm::VertexCumulDistGreater::operator()
+    (const VertexName_t& lhs, const VertexName_t& rhs) const noexcept
   {
     return _bestDistMap.at(lhs) > _bestDistMap.at(rhs);
   }

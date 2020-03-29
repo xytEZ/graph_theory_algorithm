@@ -97,7 +97,7 @@ namespace graph::dijkstra
 	    oss << "Edge number must be a positive integer";
 	    throw std::invalid_argument(oss.str());
 	  }
-	if (_graph.edgeNb == 0)
+	else if (_graph.edgeNb == 0)
 	  {
 	    std::ostringstream oss;
 	    
@@ -143,7 +143,7 @@ namespace graph::dijkstra
 		<< "vertex, neighbor vertex and distance line";
 	    throw std::invalid_argument(oss.str());
 	  }
-	if (tokenVect.at(0) == tokenVect.at(1))
+	else if (tokenVect.at(0) == tokenVect.at(1))
 	  {
 	    std::ostringstream oss;
 	    
@@ -169,11 +169,11 @@ namespace graph::dijkstra
 		oss << "Distance cannot be equal to 0";
 		throw std::invalid_argument(oss.str());
 	      }   
-	    if (!_graph
-		.vertices
-		.try_emplace(tokenVect.at(0), NeighboringVertices_t { })
-		.first->second.try_emplace(tokenVect.at(1), distance)
-		.second)
+	    else if (!_graph
+		     .vertices
+		     .try_emplace(tokenVect.at(0), NeighboringVertices_t { })
+		     .first->second.try_emplace(tokenVect.at(1), distance)
+		     .second)
 	      {
 		std::ostringstream oss;
 
@@ -183,8 +183,8 @@ namespace graph::dijkstra
 		    << tokenVect.at(1);
 		throw std::invalid_argument(oss.str());
 	      }
-	    if (auto it = _graph.vertices.find(tokenVect.at(1));
-		it != _graph.vertices.cend())
+	    else if (auto it = _graph.vertices.find(tokenVect.at(1));
+		     it != _graph.vertices.cend())
 	      {
 		if (auto it2 = it->second.find(tokenVect.at(0));
 		    it2 != it->second.cend())

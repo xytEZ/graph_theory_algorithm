@@ -15,6 +15,11 @@ namespace graph
     throw std::logic_error("Must be redefined by subclass");
   }
 
+  void AGraphAlgorithm::init(const astar::AStarFileParser&)
+  {    
+    throw std::logic_error("Must be redefined by subclass");
+  }
+
   AGraphFileParser::AGraphFileParser(const std::string& fileName) :
     _fileName(fileName)
   { }

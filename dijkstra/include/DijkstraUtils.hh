@@ -2,9 +2,7 @@
 # define DIJKSTRA_UTILS_HH_
 
 # include <string>
-# include <unordered_set>
 # include <unordered_map>
-# include <queue>
 
 namespace graph::dijkstra
 {

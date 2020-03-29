@@ -16,6 +16,11 @@ namespace graph
   {
     class BellmanFordFileParser;
   }
+
+  namespace astar
+  {
+    class AStarFileParser;
+  }
   
   class IGraphAlgoReport
   {
@@ -31,6 +36,7 @@ namespace graph
     virtual ~AGraphAlgorithm() = default;
     virtual void init(const dijkstra::DijkstraFileParser&);
     virtual void init(const bellman_ford::BellmanFordFileParser&);
+    virtual void init(const astar::AStarFileParser&);
     virtual void execute() = 0;
     virtual const IGraphAlgoReport& getReport() const noexcept = 0;
   };

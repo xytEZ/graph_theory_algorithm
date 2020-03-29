@@ -3,7 +3,13 @@
 
 namespace graph
 {
-  enum class GraphAlgo : std::uint8_t { NULL_VALUE, DIJKSTRA, BELLMAN_FORD };
+  enum class GraphAlgo : std::uint8_t
+    {
+     NULL_VALUE,
+     DIJKSTRA,
+     BELLMAN_FORD,
+     ASTAR
+    };
 }
 
 #endif

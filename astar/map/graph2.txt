@@ -1,0 +1,10 @@
+A G
+7
+A B 6
+A C 8
+B D 4
+C E 5
+D F 5
+E G 3
+F G 4
+h: A=5 B=3 C=4 D=3 E=3 F=4
