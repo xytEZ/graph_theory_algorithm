@@ -15,6 +15,7 @@ namespace graph::astar
   using NeighboringVertices_t = std::unordered_map<VertexName_t, Distance_t>;
   using VertexAdjacencyList_t = std::unordered_map<VertexName_t,
 						   NeighboringVertices_t>;
+  using PredecessorMap_t = std::unordered_map<VertexName_t, VertexName_t>;
 
   struct Graph
   {
@@ -42,7 +43,7 @@ namespace graph::astar
   {
     bool pathFound;
     FGScoreMap_t fGScoreMap;
-    std::unordered_map<VertexName_t, VertexName_t> predecessorMap;
+    PredecessorMap_t predecessorMap;
   };
 }
 

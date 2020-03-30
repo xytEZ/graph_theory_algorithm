@@ -20,6 +20,9 @@ namespace graph::astar
     AStarAlgoReport& operator=(AStarAlgoReport&&) = delete;
     std::ostream& description(std::ostream&) const noexcept override;
     std::ostream& result(std::ostream&) const noexcept override;
+
+  private :
+    bool isAdmissible(const VertexName_t&) const noexcept;
   };
 }
 

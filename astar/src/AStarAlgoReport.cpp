@@ -34,34 +34,19 @@ namespace graph::astar
           }
         os << std::endl;
       }
+    os << "Heuristics : ";
 
-    std::unordered_set<VertexName_t> overestimatedHristicSet;
-
-    overestimatedHristicSet.reserve(_graph->vertices.size());
-    for (const auto& [vertex, heuristic] : _graph->heuristics)
+    auto start = _graph->heuristics.cbegin();
+    auto end = _graph->heuristics.cend();
+    
+    while (start != end)
       {
-	os << vertex << " heuristic : " << heuristic << std::endl;
-	if (vertex == _graph->endVertexName)
-	  continue;
-	for (const auto& [destVertex, srcToDestDist] :
-	       _graph->vertices.at(vertex))
-	  {
-	    if (heuristic > srcToDestDist)
-	      {
-		overestimatedHristicSet.emplace(vertex);
-		break;
-	      }
-	  }
+	os << start->first << " (" << start->second << ")";
+	if (std::next(start) != end)
+	  os << ", ";
+	++start;
       }
-    if (!overestimatedHristicSet.empty())
-      {
-	os << std::endl
-	   << "Following vertices heuristics are overestimated : ";
-	for (const auto& vertex : overestimatedHristicSet)
-	  os << vertex << " ";
-	os << std::endl;
-      }
-    os << std::endl << std::endl;
+    os << std::endl << std::endl << std::endl;
     return os;
   }
 
@@ -71,7 +56,31 @@ namespace graph::astar
       os << "Path not found" << std::endl;
     else
       {
-        os << "Possible optimal path with \"vertex (f, g, h, w)\" format where : "
+	std::unordered_set<VertexName_t> overestimatedHristicSet;
+	std::stack<VertexName_t> bestPathStack;
+	VertexName_t predVertexName = _graph->endVertexName;
+	PredecessorMap_t::const_iterator it;
+
+	overestimatedHristicSet.reserve(_graph->vertices.size());
+	while ((it = _result.predecessorMap.find(predVertexName))
+	       != _result.predecessorMap.cend())
+	  {
+	    if (!isAdmissible(predVertexName))
+	      overestimatedHristicSet.emplace(predVertexName);
+	    bestPathStack.push(predVertexName);
+	    predVertexName = it->second;
+	  }
+	if (!isAdmissible(predVertexName))
+	  overestimatedHristicSet.emplace(predVertexName);
+	bestPathStack.push(predVertexName);
+	if (!overestimatedHristicSet.empty())
+	  {
+	    os << "Overestimated heuristics : ";
+	    for (const auto& vertex : overestimatedHristicSet)
+	      os << vertex << " ";
+	    os << std::endl;
+	  }
+        os << "Possible path with \"vertex (f, g, h, w)\" format where : "
 	   << std::endl
 	   << "f : total estimated cost from source until destination through a vertex n"
 	   << std::endl
@@ -82,19 +91,7 @@ namespace graph::astar
 	   << "w : edge weight from predecessor until current vertex"
 	   << std::endl
 	   << std::endl;
-	  
-	std::stack<VertexName_t> bestPathStack;
-        VertexName_t predVertexName = _graph->endVertexName;
-        std::unordered_map<VertexName_t, VertexName_t>::const_iterator it;
-
-        while ((it = _result.predecessorMap.find(predVertexName))
-               != _result.predecessorMap.cend())
-          {
-            bestPathStack.push(predVertexName);
-            predVertexName = it->second;
-          }
-        bestPathStack.push(predVertexName);
-
+	
 	std::string prevVertexName;
 	
 	while (!bestPathStack.empty())
@@ -125,5 +122,15 @@ namespace graph::astar
         os << std::endl;
       }
     return os;
+  }
+
+  bool AStarAlgoReport::isAdmissible(const VertexName_t& vertex) const noexcept
+  {
+    const Distance_t realCost =
+      _result.fGScoreMap.at(_graph->endVertexName).g()
+      - _result.fGScoreMap.at(vertex).g();
+    const Distance_t estimatedCost = _graph->heuristics.at(vertex);
+
+    return estimatedCost <= realCost;
   }
 }
